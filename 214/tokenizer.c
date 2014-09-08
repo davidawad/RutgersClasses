@@ -1,16 +1,18 @@
 /*
  * tokenizer.c
  */
+
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 /*
  * Tokenizer type.  You need to fill in the type as part of your implementation.
  */
 
 struct TokenizerT_ { //head of a linked list or an array object? lets hope so. 
-char*word; 
-TokenizerT * next ; 
+	char*word; 
+	struct TokenizerT_ *next ; 
 };
 
 typedef struct TokenizerT_ TokenizerT;
@@ -29,12 +31,27 @@ typedef struct TokenizerT_ TokenizerT;
  * You need to fill in this function as part of your implementation.
  */
 
+int compar(char a,char b){
+	printf("CHAR CHOMP GET INPUT") ;
+	if(a=='\0'||b=='\0'){
+		printf("CHAR CHOMP DID NOT GET INPUT") ;
+		return 0;
+	}
+	if (a==b){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
 TokenizerT *TKCreate(char *separators, char *ts) { //this will create a tokenizerT object. 
-	TokenizerT head = malloc(sizeof(TokenizerT)) ;
+	TokenizerT* head = malloc(sizeof(TokenizerT)) ;
+
 	int i,j = 0; 
-	for(i;i<strlen(inString);i++){ //loop of first string
-		for(j;j<strlen(delims);j++){
-			if(compar(delims[j],inString[i])==1){ //if the strings are the same mark the positions
+	for(i;i<strlen(ts);i++){ //loop of first string
+		for(j;j<strlen(separators);j++){
+			if(compar(separators[j],ts[i])==1){ //if the strings are the same mark the positions
 				printf("found delim separate instring at position %d ",i) ;//strcmp(delims[j],inString[i])==1)
 			}
 		}
@@ -78,44 +95,31 @@ char *TKGetNextToken(TokenizerT *tk) {
  * Each token should be printed on a separate line.
  */
 
-struct token{
-	char* word;
-	//token* next ;
-
-} ;
-int compar(char a,char b){
-	printf("CHAR CHOMP GET INPUT") ;
-	if(a=='\0'||b=='\0'){
-		printf("CHAR CHOMP DID NOT GET INPUT") ;
-		return 0;
-	}
-	if (a==b){
-		return 1;
-	}
-	else{
-		return 0;
-	}
-}
 int main(int argc, char **argv){
 	if(argc != 3){
 		printf("this is an error, arguments\n") ;
 		return 0 ;
 	}
-	char* xclone = malloc(strlen(argv[1])*sizeof(char)+sizeof(char))
-	xclone = strcpy(xclone,argv[1]) ; 
-	TKCreate(argv[1], argv[2]); // calls the tkcreate method 
-/*debugging stuff */
-	char* delims = argv[1] ;
-	char* inString = argv[2] ;
-	printf("argc is" ) ;
+	char* xclone = malloc(1000 ); /*maybe cast to a char* strlen(argv[3])*sizeof(char)+1
+	strcpy(xclone," niggers" ) ;
+	printf("%s\n",xclone) ; 
+	TKCreate(argv[2], argv[3]); // calls the tkcreate method 
+	debugging stuff */
+	TKCreate(argv[2], argv[3]);
+	char* delims = argv[2] ;
+	char* inString = argv[3] ;
+	printf("argc is " ) ;
 	printf("%d \n",argc);
-	printf("delimeters are :");
-	printf("%s \n",argv[1]) ;
-	printf("input string is :") ;
+	printf("delimeters are : ");
 	printf("%s \n",argv[2]) ;
-	/*for (i=0;i<argc;i++){ 
-	//printf("%s \n",argv[i]) ;
-	}  computer weirdness */
+	printf("input string is : ") ;
+	printf("%s \n",argv[3]) ;
+	int quors=0;
+	printf("computer weirdness : ") ; 
+	for (quors;quors<argc;quors++){
+
+		printf("%s \n",argv[quors]) ;
+	} /* computer weirdness */
 
 	return 0;
 }
