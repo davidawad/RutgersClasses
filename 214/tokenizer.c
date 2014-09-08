@@ -8,8 +8,9 @@
  * Tokenizer type.  You need to fill in the type as part of your implementation.
  */
 
-struct TokenizerT_ {
-
+struct TokenizerT_ { //head of a linked list or an array object? lets hope so. 
+char*word; 
+TokenizerT * next ; 
 };
 
 typedef struct TokenizerT_ TokenizerT;
@@ -28,8 +29,16 @@ typedef struct TokenizerT_ TokenizerT;
  * You need to fill in this function as part of your implementation.
  */
 
-TokenizerT *TKCreate(char *separators, char *ts) {
-
+TokenizerT *TKCreate(char *separators, char *ts) { //this will create a tokenizerT object. 
+	TokenizerT head = malloc(sizeof(TokenizerT)) ;
+	int i,j = 0; 
+	for(i;i<strlen(inString);i++){ //loop of first string
+		for(j;j<strlen(delims);j++){
+			if(compar(delims[j],inString[i])==1){ //if the strings are the same mark the positions
+				printf("found delim separate instring at position %d ",i) ;//strcmp(delims[j],inString[i])==1)
+			}
+		}
+	}
 	return NULL;
 }
 
@@ -41,6 +50,7 @@ TokenizerT *TKCreate(char *separators, char *ts) {
  */
 
 void TKDestroy(TokenizerT *tk) {
+
 }
 
 /*
@@ -86,41 +96,26 @@ int compar(char a,char b){
 		return 0;
 	}
 }
-int main(int argc, char **argv) {
-
+int main(int argc, char **argv){
 	if(argc != 3){
 		printf("this is an error, arguments\n") ;
 		return 0 ;
 	}
-
+	char* xclone = malloc(strlen(argv[1])*sizeof(char)+sizeof(char))
+	xclone = strcpy(xclone,argv[1]) ; 
+	TKCreate(argv[1], argv[2]); // calls the tkcreate method 
+/*debugging stuff */
 	char* delims = argv[1] ;
 	char* inString = argv[2] ;
-
-	/*debugging stuff */
 	printf("argc is" ) ;
 	printf("%d \n",argc);
 	printf("delimeters are :");
 	printf("%s \n",argv[1]) ;
 	printf("input string is :") ;
 	printf("%s \n",argv[2]) ;
-
-	int i,j = 0 ;
 	/*for (i=0;i<argc;i++){ 
 	//printf("%s \n",argv[i]) ;
 	}  computer weirdness */
-
-	for(i;i<strlen(inString);i++){ //loop of first string
-		for(j;j<strlen(delims);j++){
-			if(compar(delims[j],inString[i])==1){ //if the strings are the same mark the positions 
-				printf("found delim separate instring at position %d ",i) ;//strcmp(delims[j],inString[i])==1)
-
-
-			} 
-
-
-		}
-
-	}
 
 	return 0;
 }
