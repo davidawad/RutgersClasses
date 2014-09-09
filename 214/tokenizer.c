@@ -10,12 +10,31 @@
  * Tokenizer type.  You need to fill in the type as part of your implementation.
  */
 
-struct TokenizerT_ { //head of a linked list or an array object? lets hope so. 
-	char*word; 
+struct TokenizerT_ { /*Head of a linked list of tokens*/ 
+	char *word; 
 	struct TokenizerT_ *next ; 
 };
 
 typedef struct TokenizerT_ TokenizerT;
+
+TokenizerT* crTok(char* tok ){ /*create token method*/
+	TokenizerT* temp = malloc(sizeof(TokenizerT)) ;
+	strcpy(*temp->word ,*char tok );     /* copy word into the struct */
+	temp->next = NULL ; /* ensures we don't have junk in our pointer*/
+	return temp ;
+}
+
+TokenizerT* addToEnd(Tokenizer* head ,TokenizerT* add){/*add a new node to the end of the list */
+	TokenizerT ptr=calloc(1,sizeof(TokenizerT)); /*temporary node to add to end */
+	if(head==NULL){
+	return add; /* block of defensive code */
+	}  
+	for(ptr=head ; ptr->next!=NULL ; prt=ptr->next){
+	/*this loop will traverse the list and stop at the end, allowing us to add to the last node*/
+	}
+	ptr->next=add; 
+	return head;
+}
 
 /*
  * TKCreate creates a new TokenizerT object for a given set of separator
@@ -31,10 +50,10 @@ typedef struct TokenizerT_ TokenizerT;
  * You need to fill in this function as part of your implementation.
  */
 
-int compar(char a,char b){
-	printf("CHAR CHOMP GET INPUT") ;
+int compare(char a,char b){ /*method I wrote while debugging*/
+	printf("CHAR CHOMP GET INPUT");
 	if(a=='\0'||b=='\0'){
-		printf("CHAR CHOMP DID NOT GET INPUT") ;
+		printf("CHAR CHOMP DID NOT GET INPUT");
 		return 0;
 	}
 	if (a==b){
@@ -42,17 +61,17 @@ int compar(char a,char b){
 	}
 	else{
 		return 0;
-	}
+	} 
 }
 
-TokenizerT *TKCreate(char *separators, char *ts) { //this will create a tokenizerT object. 
+TokenizerT *TKCreate(char *separators, char *ts) { /*this will create the tokenizerT object. */
 	TokenizerT* head = malloc(sizeof(TokenizerT)) ;
 
 	int i,j = 0; 
-	for(i;i<strlen(ts);i++){ //loop of first string
+	for(i;i<strlen(ts);i++){ /*loop of first string */
 		for(j;j<strlen(separators);j++){
-			if(compar(separators[j],ts[i])==1){ //if the strings are the same mark the positions
-				printf("found delim separate instring at position %d ",i) ;//strcmp(delims[j],inString[i])==1)
+			if(compar(separators[j],ts[i])==1){ /*if the strings are the same mark the positions*/
+				printf("found delim separate instring at position %d ",i) ;/*strcmp(delims[j],inString[i])==1) */
 			}
 		}
 	}
@@ -100,8 +119,8 @@ int main(int argc, char **argv){
 		printf("this is an error, arguments\n") ;
 		return 0 ;
 	}
-	char* xclone = malloc(1000 ); /*maybe cast to a char* strlen(argv[3])*sizeof(char)+1
-	strcpy(xclone," niggers" ) ;
+	/*char* xclone = malloc(1000 ); maybe cast to a char* strlen(argv[3])*sizeof(char)+1
+	strcpy(xclone,"debug" ) ;
 	printf("%s\n",xclone) ; 
 	TKCreate(argv[2], argv[3]); // calls the tkcreate method 
 	debugging stuff */
