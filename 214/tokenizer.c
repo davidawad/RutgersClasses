@@ -26,7 +26,8 @@ void prLL(TokenizerT* head){
 	TokenizerT* ptr=(TokenizerT*)malloc(sizeof(TokenizerT));
 	int i=1;
 	for(ptr=head;ptr->next!=NULL;ptr=ptr->next){
-		printf("node number [%d] has word [%s] \n",i,ptr->word);
+		printf("printing node number {%d} \n",i) ;
+		prTok(ptr) ;
 		i++;
 	}	
 	free(ptr);
@@ -42,7 +43,6 @@ TokenizerT* crTok(char *tok){ /*create token method*/
 }
 
 TokenizerT* addToEnd(TokenizerT* head ,TokenizerT* add){/*add a new node to the end of the list */
-	printf("addToEnd \n") ;
 	TokenizerT *ptr=(TokenizerT*)malloc(sizeof(TokenizerT)); /*temporary node to add to end */
 	if(head==NULL){
 		printf("Head is NULL");
@@ -79,16 +79,18 @@ TokenizerT* addToEnd(TokenizerT* head ,TokenizerT* add){/*add a new node to the 
 TokenizerT *TKCreate(char *separators, char *ts){ /*this will create the tokenizerT object. */ 
 	TokenizerT *first=crTok(separators);
 	TokenizerT *second=crTok(ts);
-
+	/* TokenizerT *temp = (TokenizerT*)malloc(sizeof(TokenizerT)); */
 	first=addToEnd(first,second);
 
-	printf("added to the end successfully ... \n");
-	/*prLL(first);*/
-
-	/*
+	printf("after addition \n") ;
 	   prTok(first);
-	   prTok(second); */
+	   prTok(second);
 
+	prLL(first) ;
+
+	printf("after prLL \n") ;
+	   prTok(first);
+	prTok(second) ;
 	/*the following being written by mariam */
 	return NULL; 
 }
