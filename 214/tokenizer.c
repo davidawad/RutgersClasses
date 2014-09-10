@@ -10,52 +10,55 @@
  * Tokenizer type.  You need to fill in the type as part of your implementation.
  */
 
-void strcp(char *sOne, const char *sTwo){ /*strcp copies s2 into s1 */ 
-	int r,i;
-	r=0;
-	for(i=0;i<strlen(sTwo);i++){
-		sOne[i]=sTwo[i];
-		r++;
-	}
-	/* sOne[r+1]='\0';  */
-}
-
-int compare(char a,char b){ /*method I wrote while debugging*/
-	printf("CHAR CHOMP GET INPUT");
-	if(a=='\0'||b=='\0'){
-		printf("CHAR CHOMP DID NOT GET INPUT");
-		return 0;
-	}
-	if (a==b){
-		return 1;
-	}
-	else{
-		return 0;
-	}
-}
-
 struct TokenizerT_ { /*Head of a linked list of tokens*/ 
 	char *word; 
 	struct TokenizerT_ *next ; 
 };
 typedef struct TokenizerT_ TokenizerT;
 
-TokenizerT* crTok(char* tok ){ /*create token method*/
-	TokenizerT* temp = malloc(sizeof(TokenizerT)) ;
-	strcp( temp->word ,  tok );     /* copy word into the struct */
-	temp->next = NULL ; /* ensures we don't have junk in our pointer*/
+void prTok(TokenizerT *tok){
+	printf("this token has the word : %s \n", tok->word);
+	if(tok==NULL){
+		printf("the token is null. you shall not pass.\n");
+	}
+}
+void prLL(TokenizerT* head){
+	TokenizerT* ptr=(TokenizerT*)malloc(sizeof(TokenizerT));
+	int i=1;
+	for(ptr=head;ptr->next!=NULL;ptr=ptr->next){
+		printf("node number [%d] has word [%s] \n",i,ptr->word);
+		i++;
+	}	
+	free(ptr);
+}
+
+TokenizerT* crTok(char *tok){ /*create token method*/
+	TokenizerT* temp = (TokenizerT*)malloc(sizeof(TokenizerT));
+	/*printf("attempting to copy %s \n", tok) ;*/
+	temp->word = (char*)realloc(temp->word,(strlen(tok)*sizeof(char))+1);
+	temp->word=strcpy(temp->word,tok);     /* copy word into the struct */
+	temp->next=NULL ; /*ensures we don't have junk in our pointer*/
 	return temp ;
 }
 
 TokenizerT* addToEnd(TokenizerT* head ,TokenizerT* add){/*add a new node to the end of the list */
-	TokenizerT* ptr=calloc(1,sizeof(TokenizerT)); /*temporary node to add to end */
+	printf("addToEnd \n") ;
+	TokenizerT *ptr=(TokenizerT*)malloc(sizeof(TokenizerT)); /*temporary node to add to end */
 	if(head==NULL){
+		printf("Head is NULL");
 		return add; /* block of defensive code */
-	}  
-	for(ptr=head ; ptr->next!=NULL ; ptr=ptr->next){
-		/*this loop will traverse the list and stop at the end, allowing us to add to the last node*/
+	} 
+	if(add==NULL){
+		printf("add is NULL");
+		return head;
 	}
-	ptr->next=add; 
+	for(ptr=head;ptr->next!=NULL;ptr=ptr->next){/*this loop will traverse the list and stop at the end*/
+		prTok(ptr); /*will not iterate a two link list*/  
+	}
+	ptr->next = add;
+	prTok(head);
+	prTok(head->next);
+	free(ptr);
 	return head;
 }
 
@@ -73,18 +76,21 @@ TokenizerT* addToEnd(TokenizerT* head ,TokenizerT* add){/*add a new node to the 
  * You need to fill in this function as part of your implementation.
  */
 
-TokenizerT *TKCreate(char *separators, char *ts){ /*this will create the tokenizerT object. */
-	/*TokenizerT* head = malloc(sizeof(TokenizerT)) ; 
-	the following being written by mariam
-	  int i,j = 0; 
-	  for(i;i<strlen(ts);i++){ loop of first string 
-	  for(j;j<strlen(separators);j++){
-	  if(compare(separators[j],ts[i])==1){ if the strings are the same mark the positions
-	  printf("found delim separate instring at position %d ",i) ; strcmp(delims[j],inString[i])==1) 
-	  }
-	  }
-	  } */ 
-	  return NULL; 
+TokenizerT *TKCreate(char *separators, char *ts){ /*this will create the tokenizerT object. */ 
+	TokenizerT *first=crTok(separators);
+	TokenizerT *second=crTok(ts);
+
+	first=addToEnd(first,second);
+
+	printf("added to the end successfully ... \n");
+	/*prLL(first);*/
+
+	/*
+	   prTok(first);
+	   prTok(second); */
+
+	/*the following being written by mariam */
+	return NULL; 
 }
 
 /*
@@ -123,24 +129,25 @@ char *TKGetNextToken(TokenizerT *tk){
  * Each token should be printed on a separate line.
  */
 
-int main(int argc, char **argv){
-	  if(argc != 3){
-	  printf("this is an error, arguments\n") ;
-	  return 0 ;
-	  }
-	char* test = "ish" ;
-	  /*debugging stuff
-  	 for(q;q<argc+10;q++){
+int main(int argc,char **argv){
+	if(argc != 3){
+		printf("this is an error, arguments\n") ;
+		return -1 ;
+	}
+	/*char* test = "ish" ;
+	  debugging stuff
+	  for(q;q<argc+10;q++){
 	  printf("%s \n ",argv[q]) ;
-	  }  
-	  TKCreate(argv[2], argv[3]); */ 
-	  char* xclone = malloc(sizeof(argv[3])); 
-	  strcp(xclone, argv[3]);
-	  sprintf("The clone has been made: ~ %s\n", xclone) ;
-	  strcp(xclone, test) ; 
-	  printf("The clone has been made: ~ %s\n", xclone) ;
+	  }*/
+	TKCreate(argv[1], argv[2]);  
+	/*char* xclone = (char*)malloc((strlen(argv[2])+1)*sizeof(char));  
+	  printf("The clone has been mallocked: ~ %s\n", xclone) ; 
+	  xclone = strcpy(xclone, argv[2]);
+	  printf("The clone has been made: ~ %s\n", xclone) ; 
+	  printf("The clone has been made again : ~ %s\n", xclone) ;
 	  printf("argc is  %d \n",argc);
-	  printf("delimeters are  %s \n",argv[2]) ;
-	  printf("the input string is %s \n",argv[3]) ;	  
+	  printf("delimeters are  %s \n",argv[1]) ;
+	  printf("the input string is %s \n",argv[2]) ;	  
+	  free(xclone); */ 
 	return 0;
 }
