@@ -1,10 +1,28 @@
-all : sorted-list 
-wordstat : sorted-list.o 
-	gcc sorted-list.o -o sorted-list 
-wordstat.o : sorted-list.c 
-	gcc -g -pedantic -ansi -Wall -c sorted-list.c -o sorted-list.o
-clean: 
-	rm -f sorted-list sorted-list.o
+#Mariam Tsilosani
+#David Awad
+
+
+COMPILER = gcc
+CCFLAGS = -Wall
+
+all: sl
+
+sl:
+	$(COMPILER) -o sl main.c libsl.a
+
+
+libsl.a: sorted-list.o
+	ar rv libsl.a sorted-list.o
+
+
+
+
+sorted-list.o: sorted-list.c sorted-list.h
+	$(COMPILER) -c sorted-list.c sorted-list.h
+
+
+clean:
+	rm -rf *.o sl *.a
 
 
 
