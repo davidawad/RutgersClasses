@@ -2,11 +2,11 @@
  * sorted-list.c
  */
 
-#include	<string.h>
-#include	"sorted-list.h"
+#include <string.h>
+#include "sorted-list.h"
+#include <stdio.h>
 
-int compareInts(void *p1, void *p2)
-{
+int compareInts(void *p1, void *p2){
 	int i1 = *(int*)p1;
 	int i2 = *(int*)p2;
 
@@ -43,6 +43,14 @@ void destroyBasicTypeNoAlloc(void *p) {
 }
 
 
-int main()
-{
+int main(){
+SortedListPtr head = SLCreate(compareDoubles,destroyBasicTypeAlloc); 
+SLInsert(head,(void*)7);
+prLN(head); 
+SLInsert(head,(void*)8);
+/*prLL(head);
+prLN(head);
+SLInsert(head,(void*)4); 
+listSearch(head,(void*)7); */
+return 0;
 }

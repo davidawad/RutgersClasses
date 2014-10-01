@@ -10,9 +10,9 @@
  * Sorted list type.  You need to fill in the type as part of your implementation.
  */
 struct SortedList{
-	void *data;
 	struct SortedList *next;
 	int refCount;
+	void *data;
 };
 typedef struct SortedList* SortedListPtr;
 
