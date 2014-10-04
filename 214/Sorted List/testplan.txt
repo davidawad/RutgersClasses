@@ -1,1 +1,101 @@
-Contains a test plan for the code including input and expected output.
+/* 
+ * 
+ *  Mariam Tsilosani            (mt617)
+ *  David Awad                 (ada80)	
+ *  
+ *  testplan.txt
+ *  
+ */
+
+
+This is the unit test that is currently implemented  in main.c. 
+A series of removals and insertions to sorted lists and making sure that our sorted list is  working the way we expect. 
+This was done for a series of three different sorted lists using different data types.
+
+SortedListPtr listOne = SLCreate(compareStrings,destroyBasicTypeNoAlloc);
+SortedListPtr listTwo = SLCreate(compareInts, destroyBasicTypeNoAlloc);
+SortedListPtr listThree = SLCreate(compareInts, destroyBasicTypeNoAlloc);
+
+char * strOne = "string";
+char * strTwo = "hello";
+char * strThree = "world";
+char * strFour = "coding";
+char * strFive = "is";
+char * strSix = "fun";
+
+int one = 1;
+int two = 2;
+int three = 3;
+int four = 4;
+int five = 5;
+int six = 6;
+
+SLInsert(listOne, strOne);
+SLInsert(listOne, strThree);
+SLInsert(listOne, strFour);
+SLInsert(listOne, strOne);
+SLInsert(listOne, strOne);
+SLRemove(listOne, strTwo);
+SLRemove(listOne, strSix);
+SLRemove(listOne, strFive);
+SLRemove(listOne, strTwo);
+SLInsert(listOne, strTwo);
+SLRemove(listOne, strFive);
+SLInsert(listOne, strFour);
+SLInsert(listOne, strSix);
+SLRemove(listOne, strOne);
+
+SLInsert(listTwo, &one);
+SLInsert(listTwo, &three);
+SLInsert(listTwo, &four);
+SLInsert(listTwo, &two);
+SLInsert(listTwo, &six);
+SLInsert(listTwo, &five);
+
+SLInsert(listThree, &one);
+SLInsert(listThree, &three);
+SLInsert(listThree, &two);
+SLInsert(listThree, &five);
+SLInsert(listThree, &six);
+SLInsert(listThree, &one);
+SLInsert(listThree, &three);
+SLInsert(listThree, &four);
+SLInsert(listThree, &four);
+SLInsert(listThree, &five);
+SLInsert(listThree, &one);
+SLInsert(listThree, &one);
+SLInsert(listThree, &one);
+SLRemove(listThree, &one);
+SLRemove(listThree, &two);
+
+SortedListIteratorPtr SLIOne = SLCreateIterator(listOne);
+SortedListIteratorPtr SLITwo = SLCreateIterator(listTwo);
+SortedListIteratorPtr SLThree = SLCreateIterator(listThree);
+
+printf("\n%d\n",*(int*)SLNextItem(SLITwo));
+printf("%d\n",*(int*)SLNextItem(SLITwo));
+printf("%d\n",*(int*)SLNextItem(SLITwo));
+printf("%d\n",*(int*)SLNextItem(SLITwo));
+printf("%d\n",*(int*)SLNextItem(SLThree));
+printf("%d\n",*(int*)SLNextItem(SLThree));
+printf("%d\n",*(int*)SLNextItem(SLThree));
+printf("%d\n",*(int*)SLNextItem(SLThree));
+
+SLDestroyIterator(SLThree);
+SLDestroyIterator(SLITwo);
+SLDestroyIterator(SLIOne);
+
+SLDestroy(listOne);
+SLDestroy(listTwo);
+SLDestroy(listThree);
+
+
+Expected Output: 
+6
+5
+4
+3
+6
+5
+4
+3

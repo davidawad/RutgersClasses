@@ -1,5 +1,3 @@
-#David Awad
-#Mariam Tsilosani
 CC = gcc
 CFLAGS = -Wall -g
 CFILES = sorted-list.c main.c -c

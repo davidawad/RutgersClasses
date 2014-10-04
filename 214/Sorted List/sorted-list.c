@@ -1,145 +1,170 @@
-#include "sorted-list.h"
+/* 
+ * 
+ *  Mariam Tsilosani            (mt617)
+ *  David Awad                 (ada80)	
+ *  
+ *  sorted-list.c
+ *  
+ */
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "sorted-list.h"
 
+Node *createNode(void *val){
+	Node *llNode=malloc(sizeof(Node));
+	llNode->data=val;
+	llNode->reMoved=0;
+	llNode->refCount=0;
+	llNode->next=NULL;
+	return llNode;
+}
+SortedListPtr SLCreate(CompareFuncT cf, DestructFuncT df){
+	SortedListPtr sl = malloc(sizeof(struct SortedList));
+	sl->head = NULL;
+	sl->cf = cf;
+	sl->df = df;
+	return sl;
+}
 
-CompareFuncT compF;
-DestructFuncT destF;
-
-void prLN(SortedListPtr LLNode){
-	if(LLNode==NULL){
-		printf("The List Node is null... Go figure.\n");
-		return;	
-	}
-	if(LLNode->data==NULL){
-		printf("The List contains no data... Go figure.\n");
-		return;	
-	}
-	printf("This node contains data and has reference count %d \n", LLNode->refCount);
-	return;
-}
-void prLL(SortedListPtr head){
-	SortedListPtr ptr=head; /* (SortedListPtr)malloc(sizeof(struct SortedList));*/
-	int i=1;
-	printf("entered prLL\n");
-	for(ptr=head;ptr->next!=NULL;ptr=ptr->next){
-		printf("node number [%d] has refCount [%d] \n",i,ptr->refCount);
-		i++;
-	}/* pointer is done iterating through list*/ 	
-	free(ptr);
-}
-SortedListPtr crNode(void *data){ /*create node method*/
-	SortedListPtr temp=(SortedListPtr)malloc(sizeof(struct SortedList));
-	temp->refCount=0;
-	temp->next=NULL;
-	temp->data=data; /*(void*)realloc(temp->data,(sizeof(data))); */
-	return temp;
-}
-int listSearch(SortedListPtr head,void *target){
-	printf("entered the list search function \n"); 
-	SortedListPtr ptr=(SortedListPtr)malloc(sizeof(struct SortedList));	
-	for(ptr=head;ptr->next!=NULL;ptr=ptr->next){ 
-		if(compF(ptr->data,target)==0){
-			return 0; 
-		}
-	}
-	return -1;
-	free(ptr);
-	return 0;
-}
-SortedListPtr SLCreate(CompareFuncT cf, DestructFuncT df){ /* sl create */
-	if(cf==NULL){  /*checks for input validity */
-		printf("comparator fucntion is null \n") ;
-		return NULL; 
-	}
-	if(df==NULL){
-		printf("destructor fucntion is null \n") ;
-		return NULL;
-	}
-	compF=cf;
-	destF=df;
-	printf("cholo\n");
-	SortedListPtr head=crNode(NULL);
-	head->refCount++;
-	return head;
-}
+/*Destroys the sorted list*/
 void SLDestroy(SortedListPtr list){
-	if(list==NULL){
+	if(!list){
 		return;
 	}
-	SortedListPtr temp;
-	for(temp=list;temp->next!=NULL;temp=temp->next){
-		destF(temp->data);
+	/*Destroy all Nodes and the data*/
+	Node *ptr=NULL;
+	while(list->head != NULL){
+		list->df(list->head->data);
+		ptr = list->head;
+		list->head = list->head->next;
+		free(ptr);
 	}
-	return;
+	free(list);
 }
-int SLInsert(SortedListPtr list,void *newObj){
-	/*int x=6;
-	int y=3;
-	int *px=&x
-	int  
-	printf("%d \n",compF((void*)6,(void*)5)); */
-	if(newObj==NULL){
-		printf("new object is null\n");
-		return 0;
+/*inserts items into the sorted list*/
+int SLInsert(SortedListPtr list, void *newObj){
+	if(list == NULL || newObj == NULL){
+		/*if there is no list return 0
+		 * if there is no new data, return 0  
+		 */
+		return 0;               
 	}
-	if(list==NULL){
-		printf("list object is null\n");
-		return 0;
-	}
-	if(list->data==NULL){
-		list->data=newObj;
+
+
+	Node *temp=createNode(newObj);
+	if(list->head==NULL || list->cf(list->head->data, newObj)<0){
+		temp->next=list->head;
+		list->head=temp; 
 		return 1;
 	}
-	SortedListPtr temp=crNode(newObj);  /*new temporary node to be attached to list */ 	
-	SortedListPtr curr=list;
-	printf("calling prLN fo temp and then curr \n");
-	prLN(temp);
-	prLN(curr);
-	
-	while(curr!=NULL){
-		if(compF(temp->data,curr->data)==0){/*duplicate insertion */ 
+	Node *ptr = list->head;
+	Node *prev= NULL;
+	while(ptr != NULL){
+		if(list->cf(ptr->data, newObj)==0){   /*no duplicate insertion*/
 			return 0;
 		}
-		if(compF(temp->data,curr->data)==1){/*returns 1 if temp is greater*/
-			temp->next=curr;
-			curr->refCount++;
+		else if(list->cf(ptr->data, newObj)<0){ 
+			Node *temp=createNode(newObj);
+			if(prev==NULL){       
+				Node *temp=ptr;       
+				list->head=temp;   
+				temp->next=temp;   
+			}
+			prev->next=temp;
+			temp->next=ptr;
+			temp->refCount = temp->refCount + 1;
 			return 1;
 		}
-		else{ /*comparison means -1*/
-			if(compF(temp->data,curr->next->data)==1){ /*if the next isnt null and is bigger than we insert*/
-				temp->next=curr->next;
-				curr->next=temp;
-				temp->refCount++;
-				return 1;
+		else if(list->cf(ptr->data, newObj) > 0){ 
+			prev = ptr;
+			ptr = ptr->next;
+		}
+	}
+	prev->next = temp;
+	return 1;
+}
+
+/*removes certain item from sorted list*/
+
+int SLRemove(SortedListPtr list, void *newObj){
+	if(!list || list->head == NULL || !newObj){
+		return 0;
+	}
+	Node *ptr = list->head;
+	Node *prev = NULL;
+	while(ptr != NULL){
+		if(list->cf(ptr->data, newObj) == 0){
+			if(prev == NULL){      
+				list->head = list->head->next;
+				if(list->head){
+					list->head->refCount = list->head->refCount + 1;     
+				}
+				ptr->refCount = ptr->refCount - 1;    
+				ptr->reMoved = 1;
+				if(ptr->refCount <= 0){
+					list->df(ptr->data);
+					if(ptr->next!=NULL){   
+						ptr->next->refCount = ptr->next->refCount - 1; 
+					}
+					free(ptr);
+					return 1;
+				}
 			}
 			else{
-				curr=curr->next;
-				continue;
+				prev->next = ptr->next;
+				if(ptr->next != NULL){
+					ptr->next->refCount = ptr->next->refCount + 1;
+					ptr->refCount = ptr->refCount - 1;
+					ptr->reMoved=1;
+				}
+				if(ptr->refCount<=0){
+					list->df(ptr->data);
+					if(ptr->next != NULL){
+						ptr->next->refCount = ptr->next->refCount - 1;
+					}
+					free(ptr);
+					return 1;
+				}
 			}
 		}
-
+		prev = ptr;
+		ptr = ptr->next;
 	}
 	return 0;
 }
-int SLRemove(SortedListPtr list, void *newObj){
-	if(listSearch(list,newObj)==-1){
-		return 0;
-	}
-	return 1; 
-}
 SortedListIteratorPtr SLCreateIterator(SortedListPtr list){
-
-	return 0; 
+	SortedListIteratorPtr slIterator = malloc(sizeof(struct SortedListIterator));
+	slIterator->currNode = list->head;
+	if(list->head != NULL){
+		list->head->refCount = list->head->refCount + 1;
+	}
+	return slIterator;
 }
+/*destroys iterator*/
+
 void SLDestroyIterator(SortedListIteratorPtr iter){
-	return;
+	if(iter->currNode != NULL){ 
+		iter->currNode->refCount = iter->currNode->refCount - 1;
+	}
+	free(iter);
 }
-
-void *SLGetItem( SortedListIteratorPtr iter ){
-	return 0; 
-}
+/*gets next item*/
 
 void *SLNextItem(SortedListIteratorPtr iter){
-	return 0;   
+	if(iter->currNode == NULL || iter == NULL){
+		return NULL;
+	}
+	while(iter->currNode != NULL && iter->currNode->reMoved ==1){
+		iter->currNode->refCount = iter->currNode->refCount - 1; 
+		iter->currNode = iter->currNode->next;
+		iter->currNode->refCount = iter->currNode->refCount + 1;
+	}
+	if(iter->currNode != NULL && iter->currNode->reMoved==0){
+		void * temp = iter->currNode->data;
+		iter->currNode->refCount = iter->currNode->refCount - 1;             
+		iter->currNode = iter->currNode->next;  
+		return temp;
+	}
+	return NULL;
 }
