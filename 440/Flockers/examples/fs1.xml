@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!-- Test file: Flocker Project, Case 2 -->
+<!-- A flocker with separation force moves away from neighbors -->
+
+<world xmlns="http://perceptualscience.rutgers.edu/flocking"
+   width="500" height="500" time="100" debug="true">
+<defaults>
+   <!-- set a high separation distance for demo purposes -->
+   <flocker 
+         evade="true" debug="true" separation="100"
+         clear="false" align="false" center="false" follow="false" />
+</defaults>
+   <!-- these two flockers are too close together -->
+   <flocker x="100" y="250" heading="0" />
+   <flocker x="100" y="200" heading="0" />
+</world>
+

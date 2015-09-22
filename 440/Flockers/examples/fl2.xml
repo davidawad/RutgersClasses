@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!-- Test file: Flocker Project, Interactions -->
+<!-- A predator chases a big flock -->
+
+<world xmlns="http://perceptualscience.rutgers.edu/flocking"
+   width="500" height="500" time="50">
+   <defaults>
+     <flocker debug="true" 
+              light="true" clear="true" evade="true" align="true" center="true" 
+              r="130" />
+   </defaults>
+   <flocker x="140" y="100" heading="0" />
+   <flocker x="130" y="70" heading="0" />
+   <flocker x="150" y="130" heading="0" />
+   <flocker x="140" y="180" heading="0" />
+   <flocker x="180" y="110" heading="0" />
+   <flocker x="160" y="80" heading="0" />
+   <flocker x="180" y="140" heading="0" />
+   <flocker x="110" y="190" heading="0" />
+   <model-predator x="299" y="300" heading="90" />  
+   <rock x="241" y="50" />
+   <rock x="241" y="70" />
+   <rock x="241" y="90" />
+   <light x="333" y="275" />
+</world>
+

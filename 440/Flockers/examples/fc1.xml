@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!-- Test file: Flocker Project, Case 4 -->
+<!-- A flocker with centering force nestles in with other boids -->
+
+<world xmlns="http://perceptualscience.rutgers.edu/flocking"
+   width="500" height="500" time="100" debug="true">
+<defaults>
+   <flocker 
+         center="true" debug="true" 
+         clear="false" evade="false" align="false" follow="false" />
+</defaults>
+   <!-- the flocker should join in with the runners (in green) -->
+   <flocker x="100" y="250" heading="50" />
+   <runner  x="100" y="150" heading="0" r="0" g="100" b="0" />
+   <runner  x="120" y="120" heading="0" r="0" g="100" b="0" />
+   <runner  x="90" y="160" heading="0" r="0" g="100" b="0" />
+</world>
+
