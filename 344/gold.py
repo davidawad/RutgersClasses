@@ -1,9 +1,36 @@
 ##
 # @author David Awad
-# Proof of Goldbach's Conjecture
+# Verifying Goldbach's Conjecture
+
+"""
+Algorithm and Runtime analysis :
+generate a list of all primes less than 10**7.
+(This is because they aren't going to be used.)
+
+For every even number between 4 and 10^7, for each of these numbers (i),
+find a set of primes that sum to i.
+
+For each i you can then iterate through the list of prime numbers (n).
+
+We can assert that for each i and m, i = n + m;
+
+where n and m are both prime numbers such that 0 < n, m, < 10^7.
+
+You can then assert that m = i - n. If i - n is a prime number,
+then we know there is a pair of primes that sum to that i.
+
+All searches are binary searches yeilding us a final runtime of
+
+O( 10^7/2 * nlog(n) ) Or nlog(n)
+
+Note: This analysis does not consider the time it takes to generate the list
+of primes at the outset, and the list is kept in memory as opposed to
+generating every time which, although space efficient,
+is vastly more time complexity.
+"""
 
 import erato
-import sys
+
 
 def binary_search(input_list, target):
     """
@@ -44,7 +71,7 @@ def even_number(num):
     """
     Returns if a number is Even - O(1) time
     """
-    if number % 2 == 0:
+    if num % 2 == 0:
         return True
     else:
         return False
@@ -77,17 +104,22 @@ def find_prime_pair(list_primes, i):
     """
     for each number in the list of primes, find the pair that sums to num
     """
-    for prime in list_primes:
+    for n in list_primes:
         # does i - the current prime yield a prime? If so the pair exists
-        target = i - prime
-        if is_prime(list_primes, target):
+        m = i - n
+        if is_prime(list_primes, m):
             # found a pair
-            return (prime, target)
+            return n, m
         else:  # this number does not sum with a prime to i, increment
             continue
     else:  # No prime numbers found, goldbach conjecture is false?
+        print "something really weird happened"
         print i
         return False
+
+
+# generate the range of even numbers in between 4 and 10^7
+list_numbers = filter(even_number, range(4, 10**7))
 
 
 """
@@ -105,44 +137,11 @@ for prime_number in erato.gen_primes():
         break
     counter += 1
 
-# print(list_primes)
-
-# sys.exit(1)
-
-list_numbers = filter(even_number(), range(4, 10**7))
-
 
 print("Script to verify the Goldbach Conjecture by David Awad")
 print("Runs in O(nlog(n)) time")
 # for each even number in the range
 for i in list_numbers:
     # find the prime pair that satisfies sums to it
-    pair = find_prime_pair(list_primes, i)
-    print("found prime pair for num %s, pair is (%s + %s)" % num, pair[0], pair[1])
-
-
-"""
-Algorithm and Runtime analysis :
-generate a list of all primes less than 10**7.
-(This is because they aren't going to be used.)
-
-For every even number between 4 and 10^7, for each of these numbers (i),
-find a set of primes that sum to i.
-
-For each i you can then iterate through the list of prime numbers (n).
-
-We can assert that for each i and m, i = n + m;
-
-where n and m are both prime numbers such that 0 < n, m, < 10^7.
-
-You can then assert that m = i - n. If i - n is a prime number,
-then we know there is a pair of primes that sum to that i.
-
-All searches are binary searches yeilding us a final runtime of
-
-O( 10^7/2 * nlog(n) ) Or nlog(n)
-
-Note: This analysis does not consider the time it takes to generate the list
-of primes at the outset.
-
-"""
+    n, m = find_prime_pair(list_primes, i)
+    print("Found a prime pair for i value %s, where n=%s and m=%s" % i, n, m)
