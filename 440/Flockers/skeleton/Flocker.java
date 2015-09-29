@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import java.util.*;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
@@ -13,7 +15,7 @@ import org.xml.sax.SAXException;
  * An agent implementing a basic version of Reynold's
  * flocking algorithm from SIGGRAPH 1987.
  * Designed to provide skeleton code.
- * 
+ *
  * @version 1.1
  */
 public class Flocker extends Follower {
@@ -28,7 +30,7 @@ public class Flocker extends Follower {
 
     	/** XML attribute for setting obstacle avoidance */
     	static final String AVOIDS_OBSTACLES_PARAM = "clear";
-    	
+
         /** XML attribute for setting collision avoidance */
         static final String AVOIDS_COLLISIONS_PARAM = "evade";
 
@@ -37,25 +39,25 @@ public class Flocker extends Follower {
 
         /** XML attribute for setting collision avoidance */
         static final String DOES_CENTERING_PARAM = "center";
-        
+
         /** XML attribute for setting food following */
         static final String FOLLOWS_LIGHT_PARAM = "follow";
 
         /** XML attribute for distance at which obstacles are a worry */
         static final String CLEARANCE_DISTANCE_PARAM = "clearance";
-        
+
         /** XML attribute for angle at which obstacles are a worry */
         static final String CLEARANCE_ANGLE_PARAM = "cone";
-        
+
         /** XML attribute for setting minimum separation distance */
         static final String SEPARATION_DISTANCE_PARAM = "separation";
 
         /** XML attribute for setting distance at which agent starts to pay attention */
         static final String DETECTION_DISTANCE_PARAM = "detection";
 
-        /** XML attribute for setting obstacle weight */	
+        /** XML attribute for setting obstacle weight */
         static final String OBSTACLE_WEIGHT_PARAM = "ow";
-        
+
         /** XML attribute for setting separation weight */
         static final String SEP_WEIGHT_PARAM = "sw";
 
@@ -64,7 +66,7 @@ public class Flocker extends Follower {
 
         /** XML attribute for setting centering weight */
         static final String CTR_WEIGHT_PARAM = "cw";
-        
+
         /** XML attribute for setting importance of following light */
         static final String LIGHT_WEIGHT_PARAM = "lw";
 
@@ -76,7 +78,7 @@ public class Flocker extends Follower {
         double cone;
         /** How important is avoiding obstacles */
         double obstacleWeight;
-        
+
         /** Does the flocker avoid collisions */
         boolean avoidsCollisions;
         /** How close must a neighbor be before collision is a worry */
@@ -100,10 +102,10 @@ public class Flocker extends Follower {
         boolean followsLight;
         /** How important is following light compared to other goals? */
         double followWeight;
-        
+
         /**
          * Constructor from specific data
-         * 
+         *
          * @param obstacles true if boid should avoid obstacles
          * @param collide true if boid should avoid collisions with neighbors
          * @param align true if boid should align heading with neighbors
@@ -119,7 +121,7 @@ public class Flocker extends Follower {
          * @param cw strength of centering drive
          * @param fw strength of light drive
          */
-        FlockerAttributes(boolean obstacles, boolean collide, 
+        FlockerAttributes(boolean obstacles, boolean collide,
         		boolean align, boolean center, boolean follow,
                 double clearance, double cone,
                 double separation, double detection,
@@ -142,7 +144,7 @@ public class Flocker extends Follower {
 
         /**
          * Constructor from XML data
-         * 
+         *
          * @param atts SAX attributes corresponding to XML data
          * @param defaults values to use when data is unspecified
          * @param locator file information for error messages
@@ -169,7 +171,7 @@ public class Flocker extends Follower {
 
         /**
          * Change parameters based on XML data
-         * 
+         *
          * @param atts SAX attributes corresponding to XML data
          * @param locator file information for error messages
          * @throws SAXException if data has wrong format
@@ -182,14 +184,14 @@ public class Flocker extends Follower {
         /**
          * Write a complete XML description of the flocking boid
          * (in its current state) on the file corresponding to out
-         * 
+         *
          * @param out where data should be written
          * @throws IOException if writes fail
          */
         public void log(BufferedWriter out)
         throws IOException {
         	double degrees = RADIANS_TO_DEGREES * cone;
-        	
+
             out.write(
                     AVOIDS_OBSTACLES_PARAM + OPEN + Boolean.toString(avoidsObstacles) + CLOSE +
                     AVOIDS_COLLISIONS_PARAM + OPEN + Boolean.toString(avoidsCollisions) + CLOSE +
@@ -211,13 +213,13 @@ public class Flocker extends Follower {
 
         /**
          * Constructor from XML data
-         * 
+         *
          * @param atts SAX attributes defining flocker element
          * @param defaults what to do when attributes are unspecified
          * @param loc file information for error messages
          * @throws SAXException if data has wrong format
          */
-        FlockerAttributes(Attributes atts, FlockerAttributes defaults, Locator loc) 
+        FlockerAttributes(Attributes atts, FlockerAttributes defaults, Locator loc)
         throws SAXException {
             set(atts, defaults, loc);
         }
@@ -225,7 +227,7 @@ public class Flocker extends Follower {
 
     /** Should a flocker by default avoid obstacles */
     static final boolean AVOIDS_OBSTACLES = true;
-    
+
     /** Should a flocker by default avoid collisions */
     static final boolean AVOIDS_COLLISIONS = true;
 
@@ -234,7 +236,7 @@ public class Flocker extends Follower {
 
     /** Should a flocker by default try to maneuver to the center of the flock */
     static boolean DOES_CENTERING = true;
-    
+
     /** Should a flocker follow lights? */
     static boolean FOLLOWS_LIGHT = true;
 
@@ -246,13 +248,13 @@ public class Flocker extends Follower {
 
     /** By default, when does an agent get worried about obstacles */
     static final double DEFAULT_CLEARANCE_DISTANCE = 140;
-    
+
     /** By default, what headings count as an approaching crash */
     static final double DEFAULT_CLEARANCE_ANGLE = 60 * DEGREES_TO_RADIANS;
-    
+
     /** By default, how hard do agents work to avoid obstacles */
     static final double OBSTACLE_WEIGHT = 2.0;
-    
+
     /** By default, how hard do agents work to avoid collisions */
     static final double SEPARATION_WEIGHT = 2.0;
 
@@ -261,7 +263,7 @@ public class Flocker extends Follower {
 
     /** By default, how hard do agents work at centering */
     static double CENTERING_WEIGHT = 10.0;
-    
+
     /** By default, how hard to agents work to follow lights */
     static double LIGHT_WEIGHT = 5.0;
 
@@ -274,7 +276,7 @@ public class Flocker extends Follower {
                 DEFAULT_CLEARANCE_ANGLE,
                 DEFAULT_SEPARATION_DISTANCE,
                 DEFAULT_DETECTION_DISTANCE,
-                OBSTACLE_WEIGHT, SEPARATION_WEIGHT, 
+                OBSTACLE_WEIGHT, SEPARATION_WEIGHT,
                 ALIGNMENT_WEIGHT, CENTERING_WEIGHT, LIGHT_WEIGHT);
 
     /** Record that allows XML files to set Flocker defaults */
@@ -295,25 +297,25 @@ public class Flocker extends Follower {
 
     /**
      * This is a convenience class that handles the
-     * integration and visualization of control 
+     * integration and visualization of control
      * information from different sources
      */
     static class WeightedForce {
     	static final double PIXELS_PER_UNIT_WEIGHT = 8;
     	static final double ARROWHEAD_LENGTH = 10;
-    	
+
     	/** need to change (forward or back) in direction of heading */
         public double fx;
         /** need to change (right or left) perpendicular to heading */
         public double fy;
-        
-        /** 
+
+        /**
          * Constructor
          * @param x forward--backward force value
          * @param y right--left force value
          */
         public WeightedForce(double weight, double angle) {
-            fx = weight * Math.cos(angle); 
+            fx = weight * Math.cos(angle);
             fy = weight * Math.sin(angle);
         }
         /**
@@ -328,14 +330,14 @@ public class Flocker extends Follower {
         public double getWeight() {
             return Math.sqrt(fx * fx + fy * fy);
         }
-        
+
         /**
          * @return direction of force relative to heading
          */
         public double getAngle() {
             return World.displacementOnCircle(0, Math.atan2(fy, fx), 2 * Math.PI);
         }
-        
+
         /**
          * Update force to include new component
          * @param f additional force to take into account
@@ -350,7 +352,7 @@ public class Flocker extends Follower {
         public void reweight(double factor) {
         	fx *= factor; fy *= factor;
         }
-        
+
         /**
          * Draw on the screen
          * @param x center of drawing
@@ -378,7 +380,7 @@ public class Flocker extends Follower {
         			g);
         }
     }
-    
+
     /** Decision making parameters for this boid's flocking behavior */
     FlockerAttributes flocking;
 
@@ -389,11 +391,11 @@ public class Flocker extends Follower {
     WeightedForce centering = null;
     WeightedForce light = null;
     WeightedForce total = null;
-    
+
     /**
      * Constructor: initialize general agent fields to describe
      * a flocking agent.
-     * 
+     *
      * @param w world to which agent belongs
      * @param id number to identify agent in its world
      * @param atts SAX attributes corresponding to XML agent spec
@@ -411,8 +413,8 @@ public class Flocker extends Follower {
     /**
      * Output an XML element describing the current state of
      * this boid.
-     * 
-     * @param out an open file to write to, wrapped in BufferedWriter 
+     *
+     * @param out an open file to write to, wrapped in BufferedWriter
      *            convenience class
      */
     @Override
@@ -436,7 +438,7 @@ public class Flocker extends Follower {
            	form.debug = false;
            	super.draw(g);
            	form.debug = true;
-           	
+
            	g.setColor(Color.ORANGE);
            	new WeightedForce(1, 0).draw(lastStatus, myWorld, g);
         	g.setColor(Color.BLACK);
@@ -458,9 +460,9 @@ public class Flocker extends Follower {
         	if (total != null && total.getWeight() != 0)
         		total.draw(lastStatus, myWorld, g);
         } else
-        	super.draw(g);	
+        	super.draw(g);
     }
-    
+
     /**
      * What are you interested in?  Here: just close lights
      *
@@ -472,21 +474,21 @@ public class Flocker extends Follower {
     	return (p.getObjectCategory() == Percept.ObjectCategory.LIGHT &&
     			p.getDistance() < flocking.detectionDistance);
     }
-    
+
     /**
      * Eat light sources
-     * 
+     *
      * @param neighbor type of agent you've collided with
      * @return what you do with them
      */
     @Override
     public InteractiveBehavior behaviorOnApproach(Percept.ObjectCategory neighbor) {
-    	if (neighbor == Percept.ObjectCategory.LIGHT) 
+    	if (neighbor == Percept.ObjectCategory.LIGHT)
     		return InteractiveBehavior.ATTACK;
     	else
     		return InteractiveBehavior.COEXIST;
     }
-    
+
     /**
      * Boids have three impulses:
      * - Avoiding collisions
@@ -496,10 +498,41 @@ public class Flocker extends Follower {
      */
     protected WeightedForce maintainClearance(List<Percept> ps) {
         WeightedForce mf = new WeightedForce();
+        // TODO
+        // Update the force mf to respond to the obstacles in the
+        // passed percept list.
 
-	// TBC
-	// Update the force mf to respond to the obstacles in the 
-	// passed percept list.
+
+        List<Double> angles = new ArrayList<Double>();
+
+
+        // iterate through the list of percieved elements,
+        // get angles from all obstacles
+        for (Percept element : ps) {
+            if (element.getObjectCategory() == Percept.ObjectCategory.OBSTACLE){
+                System.out.println(element.getAngle());
+                angles.add(element.getAngle());
+            }
+        }
+
+        Collections.sort(angles);
+
+        if(angles.get(0) == null){
+            // no obstacles, no force needed
+            return mf;
+        }
+
+        double prev = angles.get(0);
+        for(int i=0; i<angles.size(); i++){
+            double curr = angles.get(i);
+            if(prev != curr){
+                mf.fy += ((curr + prev ) / 2) ;
+            }
+        }
+
+        // System.out.println("making a thing");
+
+
         return mf;
     }
 
@@ -508,7 +541,7 @@ public class Flocker extends Follower {
 
 	// TBC
 	// Update the force sf to reflect the separation force
-	// based on the passed percept list  
+	// based on the passed percept list
         return sf;
     }
 
@@ -516,7 +549,7 @@ public class Flocker extends Follower {
         WeightedForce af = new WeightedForce();
 	// TBC
 	// Update the force af to reflect the alignment force
-	// based on the passed percept list  
+	// based on the passed percept list
         return af;
     }
 
@@ -524,19 +557,19 @@ public class Flocker extends Follower {
     	WeightedForce cf = new WeightedForce();
 	// TBC
 	// Update the force cf to reflect the centering force
-	// based on the passed percept list  
+	// based on the passed percept list
         return cf;
     }
 
-    
+
     protected WeightedForce followLight(List<Percept> ps) {
     	WeightedForce ff = new WeightedForce();
 	// TBC
 	// Update the force ff to draw the agent towards
-	// a particular target in the passed percept list      	
+	// a particular target in the passed percept list
     	return ff;
     }
-    
+
     @Override
     public void deliberate(List<Percept> ps) {
 
@@ -548,7 +581,7 @@ public class Flocker extends Follower {
         } else {
         	safetyForce = new WeightedForce();
         }
-        
+
         WeightedForce collisionForce;
         if (flocking.avoidsCollisions) {
             collision = collisionForce = separateFromNeighbors(ps);
@@ -560,7 +593,7 @@ public class Flocker extends Follower {
         WeightedForce alignmentForce;
         if (flocking.alignsWithNeighbors) {
             alignment = alignmentForce = alignWithNeighbors(ps);
-        } 
+        }
         else {
             alignmentForce = new WeightedForce();
         }
@@ -580,15 +613,21 @@ public class Flocker extends Follower {
         else {
         	lightForce = new WeightedForce();
         }
-        
-	// TBC
-	// Calculate overall force for boid
+
+    // TODO Calculate overall force for boid
 	// and plan an appropriate behavior in response
 	// Default version just has the boid proceed forward
 
         WeightedForce f = new WeightedForce();
-        f.addIn(inertia);          
-        
+        f.addIn(inertia);
+        f.addIn(safetyForce);
+        f.addIn(collisionForce);
+        f.addIn(alignmentForce);
+        f.addIn(centeringForce);
+        f.addIn(lightForce);
+
+        System.out.println("Fx :" + f.fx + " Fy :" + f.fy);
+
         todo = new LinkedList<Intention>();
         todo.add(new Intention(Intention.ActionType.TURN, f.getAngle()));
         todo.add(new Intention(Intention.ActionType.CHANGE_SPEED, form.maxSpeedForward - status.forwardV));
