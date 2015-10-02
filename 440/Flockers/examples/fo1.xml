@@ -7,12 +7,15 @@
 <flocker x="100" y="250" heading="0"
          clear="true" debug="true"
          evade="false" align="false" center="false" follow="false" />
+     
+
 <rock    x="300" y="250" />
 
-
+<!--
 <rock    x="300" y="350" />
+<rock    x="200" y="400" />
+-->
 
-<!-- <flocker x="20" y="200" heading="50"/> -->
 
 </world>
 

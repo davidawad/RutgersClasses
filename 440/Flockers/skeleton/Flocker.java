@@ -498,75 +498,120 @@ public class Flocker extends Follower {
      */
     protected WeightedForce maintainClearance(List<Percept> ps) {
         WeightedForce mf = new WeightedForce();
-        // TODO
-        // Update the force mf to respond to the obstacles in the
-        // passed percept list.
-
-
-        List<Double> angles = new ArrayList<Double>();
-
-
-        // iterate through the list of percieved elements,
-        // get angles from all obstacles
+        // Update the force mf to respond to the obstacles in the world
+        // iterate through the list of percieved elements
         for (Percept element : ps) {
-            if (element.getObjectCategory() == Percept.ObjectCategory.OBSTACLE){
-                System.out.println(element.getAngle());
-                angles.add(element.getAngle());
+            Percept.ObjectCategory cur_cat = element.getObjectCategory();
+            if(cur_cat == Percept.ObjectCategory.OBSTACLE || cur_cat == Percept.ObjectCategory.PREDATOR || cur_cat == Percept.ObjectCategory.CORPSE){
+                double curr_distance = element.getDistance() ;
+                double curr_angle = element.getAngle();
+
+                // is an obstacle too close??
+                if(curr_distance <= flocking.clearance && Math.abs(curr_angle) <= flocking.cone){
+                    double new_direction;
+                    // which directon to go in.
+                    if(curr_angle > 0){
+                        // go in the negative direction
+                        new_direction = -flocking.cone;
+                    }else{
+                        // go in the positive direction
+                        new_direction = flocking.cone;
+                    }
+                    /* add a new force to F for each obstacle to avoid
+                    reweight by the obstacle weight and
+                    reweight by the inverse of the distance */
+                    mf.addIn(new WeightedForce(flocking.obstacleWeight/curr_distance, new_direction));
+                }
             }
         }
-
-        Collections.sort(angles);
-
-        if(angles.get(0) == null){
-            // no obstacles, no force needed
-            return mf;
-        }
-
-        double prev = angles.get(0);
-        for(int i=0; i<angles.size(); i++){
-            double curr = angles.get(i);
-            if(prev != curr){
-                mf.fy += ((curr + prev ) / 2) ;
-            }
-        }
-
-        // System.out.println("making a thing");
-
-
         return mf;
     }
 
     protected WeightedForce separateFromNeighbors(List<Percept> ps) {
+    	// Update the force sf to reflect the separation force
+    	// based on the passed percept list
         WeightedForce sf = new WeightedForce();
-
-	// TBC
-	// Update the force sf to reflect the separation force
-	// based on the passed percept list
+        for (Percept element : ps) {
+            if(element.getObjectCategory() == Percept.ObjectCategory.BOID){
+                // we're looking at a boid, let's get our information
+                double curr_distance = element.getDistance();
+                double curr_angle = element.getAngle();
+                // is the boid too close??
+                if(curr_distance <= flocking.separationDistance){
+                    // add a new weighted force to move
+                    // in the opposite direction of the boid
+                    sf.addIn(
+                    new WeightedForce(flocking.separationWeight/curr_distance,
+                                      -element.getAngle()
+                                     )
+                            );
+                }
+            }
+        }
         return sf;
     }
 
     protected WeightedForce alignWithNeighbors(List<Percept> ps) {
+    	// Update the force af to reflect the alignment force
+    	// based on the passed percept list
         WeightedForce af = new WeightedForce();
-	// TBC
-	// Update the force af to reflect the alignment force
-	// based on the passed percept list
+        // find the average orientation of all the boids
+        double n = 0 ;
+        for (Percept elem : ps) {
+            if(elem.getObjectCategory() == Percept.ObjectCategory.BOID && flocking.separationDistance <= elem.getDistance() && elem.getDistance() <= flocking.detectionDistance){
+                n ++ ;
+                af.addIn(new WeightedForce(flocking.alignmentWeight, elem.getAngle() ));
+            }
+        }
+        af.reweight(1/n);
         return af;
     }
 
     protected WeightedForce centerOnNeighbors(List<Percept> ps) {
-    	WeightedForce cf = new WeightedForce();
-	// TBC
-	// Update the force cf to reflect the centering force
-	// based on the passed percept list
+    	// Update the force cf to reflect the centering force
+
+        // find the average position of all the boids
+        double boid_angle_sum = 0;
+
+        // number of relevant boids
+        double n = 0;
+
+        for (Percept elem : ps) {
+            if(elem.getObjectCategory() == Percept.ObjectCategory.BOID && flocking.separationDistance <= elem.getDistance() && elem.getDistance() <= flocking.detectionDistance){
+                n ++;
+                boid_angle_sum  += elem.getAngle();
+            }
+        }
+
+        WeightedForce cf = new WeightedForce(flocking.centeringWeight, boid_angle_sum/n);
+
         return cf;
     }
 
 
     protected WeightedForce followLight(List<Percept> ps) {
-    	WeightedForce ff = new WeightedForce();
-	// TBC
-	// Update the force ff to draw the agent towards
-	// a particular target in the passed percept list
+        WeightedForce ff = new WeightedForce();
+    	// Update the force ff to draw the agent towards
+    	// a particular target in the passed percept list
+
+        // start with the max possible distance a light could be away
+        double nearest = flocking.detectionDistance;
+
+        Percept nearest_light = null;
+        for (Percept elem : ps) {
+            if(elem.getObjectCategory() == Percept.ObjectCategory.LIGHT){
+                if(elem.getDistance() < nearest){
+                    nearest_light = elem;
+                }
+            }
+        }
+
+        if (nearest_light != null){
+            ///nearest_light.getDistance()
+                ff = new WeightedForce(flocking.followWeight, nearest_light.getAngle());
+        }
+        // found the nearest light, let's create a force going in that direction
+
     	return ff;
     }
 
@@ -614,9 +659,9 @@ public class Flocker extends Follower {
         	lightForce = new WeightedForce();
         }
 
-    // TODO Calculate overall force for boid
-	// and plan an appropriate behavior in response
-	// Default version just has the boid proceed forward
+        // TODO Calculate overall forces for boid
+    	// and plan an appropriate behavior in response
+    	// Default version just has the boid proceed forward
 
         WeightedForce f = new WeightedForce();
         f.addIn(inertia);
@@ -626,7 +671,7 @@ public class Flocker extends Follower {
         f.addIn(centeringForce);
         f.addIn(lightForce);
 
-        System.out.println("Fx :" + f.fx + " Fy :" + f.fy);
+        // System.out.println("Fx :" + f.fx + " Fy :" + f.fy);
 
         todo = new LinkedList<Intention>();
         todo.add(new Intention(Intention.ActionType.TURN, f.getAngle()));
