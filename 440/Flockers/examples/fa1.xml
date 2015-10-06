@@ -5,12 +5,14 @@
 <world xmlns="http://perceptualscience.rutgers.edu/flocking"
    width="500" height="500" time="100" debug="true">
 <defaults>
-   <flocker 
-         align="true" debug="true" 
+   <flocker
+         align="true" debug="true"
          clear="false" evade="false" center="false" follow="false" />
 </defaults>
+
    <!-- the flocker should line up with the runner (in green) -->
    <flocker x="100" y="250" heading="50" />
    <runner  x="100" y="150" heading="0" r="0" g="100" b="0" />
-</world>
 
+
+</world>

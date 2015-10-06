@@ -659,7 +659,7 @@ public class Flocker extends Follower {
         	lightForce = new WeightedForce();
         }
 
-        // TODO Calculate overall forces for boid
+        // Calculate overall forces for boid
     	// and plan an appropriate behavior in response
     	// Default version just has the boid proceed forward
 
