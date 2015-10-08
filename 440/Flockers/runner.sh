@@ -1,13 +1,14 @@
 #!/bin/bash
 
-cd skeleton
+clear 
 
-ls
+cd skeleton
 
 echo "compiling new version of java file and running example $1"
 
 rm *.class
 
+ls
 javac Flocker.java
 javac Simulation.java
 

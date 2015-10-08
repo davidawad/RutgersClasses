@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<!-- Test file: Flocker Project, Interactions -->
-<!-- A big flock alignes itself  -->
+<!-- Test file: Split.xml -->
+<!-- A flock gets split by obstacles  -->
 
 <world xmlns="http://perceptualscience.rutgers.edu/flocking"
    width="500" height="500" time="100">
@@ -19,6 +19,9 @@
    <flocker x="130" y="70"  heading="1" />
    <flocker x="150" y="130" heading="1" />
    <flocker x="140" y="180" heading="1" />
+
+
+
    <flocker x="180" y="110" heading="1" />
    <flocker x="160" y="80"  heading="1" />
    <flocker x="180" y="140" heading="1" />
@@ -26,6 +29,11 @@
 
    <!-- <rock    x="300" y="180" /> -->
 
+   <rock    x="260" y="120" />
+   <rock    x="300" y="120" />
+   <rock    x="300" y="170" />
+   <rock    x="290" y="220" />
+   <rock    x="290" y="230" />
 
 
 </world>

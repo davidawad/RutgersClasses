@@ -507,7 +507,7 @@ public class Flocker extends Follower {
                 double curr_angle = element.getAngle();
 
                 // is an obstacle too close??
-                if(curr_distance <= flocking.clearance && Math.abs(curr_angle) <= flocking.cone){
+                if(curr_distance > 0.0 && curr_distance <= flocking.clearance && Math.abs(curr_angle) <= flocking.cone){
                     double new_direction;
                     // which directon to go in.
                     if(curr_angle > 0){
@@ -517,9 +517,11 @@ public class Flocker extends Follower {
                         // go in the positive direction
                         new_direction = flocking.cone;
                     }
-                    /* add a new force to F for each obstacle to avoid
+                    /*
+                    add a new force to F for each obstacle to avoid
                     reweight by the obstacle weight and
-                    reweight by the inverse of the distance */
+                    reweight by the inverse of the distance
+                    */
                     mf.addIn(new WeightedForce(flocking.obstacleWeight/curr_distance, new_direction));
                 }
             }
@@ -537,14 +539,9 @@ public class Flocker extends Follower {
                 double curr_distance = element.getDistance();
                 double curr_angle = element.getAngle();
                 // is the boid too close??
-                if(curr_distance <= flocking.separationDistance){
-                    // add a new weighted force to move
-                    // in the opposite direction of the boid
-                    sf.addIn(
-                    new WeightedForce(flocking.separationWeight/curr_distance,
-                                      -element.getAngle()
-                                     )
-                            );
+                if(curr_distance > 0.0 && curr_distance <= flocking.separationDistance){
+                    // add force in opposite direction of boid
+                    sf.addIn( new WeightedForce(flocking.separationWeight/curr_distance, -element.getAngle()));
                 }
             }
         }
@@ -560,31 +557,30 @@ public class Flocker extends Follower {
         for (Percept elem : ps) {
             if(elem.getObjectCategory() == Percept.ObjectCategory.BOID && flocking.separationDistance <= elem.getDistance() && elem.getDistance() <= flocking.detectionDistance){
                 n ++ ;
-                af.addIn(new WeightedForce(flocking.alignmentWeight, elem.getAngle() ));
+                af.addIn(new WeightedForce(flocking.alignmentWeight, elem.getOrientation() ));
             }
         }
-        af.reweight(1/n);
+        if(n > 0.0){
+            af.reweight(1/n);
+        }
         return af;
     }
 
     protected WeightedForce centerOnNeighbors(List<Percept> ps) {
     	// Update the force cf to reflect the centering force
-
-        // find the average position of all the boids
-        double boid_angle_sum = 0;
-
+        WeightedForce cf = new WeightedForce();
         // number of relevant boids
         double n = 0;
 
         for (Percept elem : ps) {
             if(elem.getObjectCategory() == Percept.ObjectCategory.BOID && flocking.separationDistance <= elem.getDistance() && elem.getDistance() <= flocking.detectionDistance){
                 n ++;
-                boid_angle_sum  += elem.getAngle();
+                cf.addIn(new WeightedForce(flocking.centeringWeight* (elem.getDistance()/flocking.detectionDistance), elem.getAngle()) ) ;
             }
         }
-
-        WeightedForce cf = new WeightedForce(flocking.centeringWeight, boid_angle_sum/n);
-
+        if(n > 0.0){
+            cf.reweight(1/n);
+        }
         return cf;
     }
 
@@ -593,7 +589,6 @@ public class Flocker extends Follower {
         WeightedForce ff = new WeightedForce();
     	// Update the force ff to draw the agent towards
     	// a particular target in the passed percept list
-
         // start with the max possible distance a light could be away
         double nearest = flocking.detectionDistance;
 
@@ -601,17 +596,17 @@ public class Flocker extends Follower {
         for (Percept elem : ps) {
             if(elem.getObjectCategory() == Percept.ObjectCategory.LIGHT){
                 if(elem.getDistance() < nearest){
+                    nearest = elem.getDistance();
                     nearest_light = elem;
                 }
             }
         }
 
-        if (nearest_light != null){
-            ///nearest_light.getDistance()
+        // found the nearest light, let's create a force going in that direction
+        if (nearest_light != null && nearest_light.getDistance() > 0.0){
+            // TODO fix the following force so it works properly
                 ff = new WeightedForce(flocking.followWeight, nearest_light.getAngle());
         }
-        // found the nearest light, let's create a force going in that direction
-
     	return ff;
     }
 

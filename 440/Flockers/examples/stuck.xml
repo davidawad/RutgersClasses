@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<!-- Test file: Stuck.xml -->
+<!-- A flock gets stuck by haing unreachable lights -->
+
+<world xmlns="http://perceptualscience.rutgers.edu/flocking"
+   width="500" height="500" time="100">
+   <defaults>
+     <flocker debug="true"
+              light="true"
+              clear="true"
+              evade="true"
+              align="true"
+              center="true"
+              />
+   </defaults>
+
+
+   <flocker x="180" y="150" heading="1"/>
+   <flocker x="300" y="110" heading="1"/>
+   <flocker x="300" y="170" heading="1"/>
+   <flocker x="180" y="140" heading="1"/>
+   <flocker x="150" y="150" heading="1"/>
+
+   <!-- y axis of the angle -->
+
+   <rock    x="290" y="110"/>
+   <rock    x="290" y="120"/>
+   <rock    x="290" y="130"/>
+   <rock    x="290" y="140"/>
+   <rock    x="290" y="150"/>
+   <rock    x="290" y="160"/>
+   <rock    x="290" y="170"/>
+   <rock    x="290" y="180"/>
+   <rock    x="290" y="190"/>
+   <rock    x="290" y="200"/>
+   <rock    x="290" y="220"/>
+   <rock    x="290" y="210"/>
+   <rock    x="290" y="220"/>
+   <rock    x="290" y="230"/>
+   <rock    x="290" y="240"/>
+   <rock    x="290" y="250"/>
+   <rock    x="290" y="260"/>
+   <rock    x="290" y="270"/>
+
+   <rock    x="290" y="10"/>
+   <rock    x="290" y="20"/>
+   <rock    x="290" y="30"/>
+   <rock    x="290" y="40"/>
+   <rock    x="290" y="50"/>
+   <rock    x="290" y="60"/>
+   <rock    x="290" y="70"/>
+   <rock    x="290" y="80"/>
+   <rock    x="290" y="90"/>
+   <rock    x="290" y="100"/>
+   <rock    x="290" y="110"/>
+   <rock    x="290" y="120"/>
+   <rock    x="290" y="130"/>
+   <rock    x="290" y="140"/>
+   <rock    x="290" y="150"/>
+   <rock    x="290" y="160"/>
+   <rock    x="290" y="170"/>
+   <rock    x="290" y="180"/>
+   <rock    x="290" y="190"/>
+
+   <rock    x="0" y="10"/>
+   <rock    x="10" y="10"/>
+   <rock    x="20" y="10"/>
+   <rock    x="30" y="10"/>
+   <rock    x="40" y="10"/>
+   <rock    x="50" y="10"/>
+   <rock    x="60" y="10"/>
+   <rock    x="70" y="10"/>
+   <rock    x="80" y="10"/>
+   <rock    x="90" y="10"/>
+   <rock    x="100" y="10"/>
+   <rock    x="110" y="10"/>
+   <rock    x="120" y="10"/>
+   <rock    x="130" y="10"/>
+   <rock    x="140" y="10"/>
+   <rock    x="150" y="10"/>
+   <rock    x="160" y="10"/>
+   <rock    x="170" y="10"/>
+   <rock    x="180" y="10"/>
+   <rock    x="190" y="10"/>
+
+   <rock    x="0" y="280"/>
+   <rock    x="10" y="280"/>
+   <rock    x="20" y="280"/>
+   <rock    x="30" y="280"/>
+   <rock    x="40" y="280"/>
+   <rock    x="50" y="280"/>
+   <rock    x="60" y="280"/>
+   <rock    x="70" y="280"/>
+   <rock    x="80" y="280"/>
+   <rock    x="90" y="280"/>
+   <rock    x="100" y="280"/>
+   <rock    x="110" y="280"/>
+   <rock    x="120" y="280"/>
+   <rock    x="130" y="280"/>
+   <rock    x="140" y="280"/>
+   <rock    x="150" y="280"/>
+   <rock    x="160" y="280"/>
+   <rock    x="170" y="280"/>
+   <rock    x="180" y="280"/>
+   <rock    x="190" y="280"/>
+   <rock    x="200" y="280"/>
+   <rock    x="210" y="280"/>
+   <rock    x="220" y="280"/>
+   <rock    x="230" y="280"/>
+   <rock    x="240" y="280"/>
+   <rock    x="250" y="280"/>
+   <rock    x="260" y="280"/>
+
+
+   <rock    x="260" y="280"/>
+   <rock    x="270" y="280"/>
+   <rock    x="280" y="280"/>
+   <rock    x="290" y="280"/>
+   <rock    x="300" y="280"/>
+   <rock    x="310" y="280"/>
+   <rock    x="320" y="280"/>
+   <rock    x="330" y="280"/>
+   <rock    x="340" y="280"/>
+   <rock    x="350" y="280"/>
+   <rock    x="360" y="280"/>
+   <rock    x="370" y="280"/>
+   <rock    x="380" y="280"/>
+   <rock    x="390" y="280"/>
+   <rock    x="400" y="280"/>
+   <rock    x="410" y="280"/>
+   <rock    x="420" y="280"/>
+   <rock    x="430" y="280"/>
+   <rock    x="440" y="280"/>
+   <rock    x="450" y="280"/>
+   <rock    x="460" y="280"/>
+   <rock    x="470" y="280"/>
+   <rock    x="480" y="280"/>
+   <rock    x="490" y="280"/>
+
+   <!-- x axis of the angle -->
+   <rock    x="290" y="280"/>
+   <rock    x="280" y="280"/>
+   <rock    x="270" y="280"/>
+   <rock    x="260" y="280"/>
+   <rock    x="250" y="280"/>
+   <rock    x="240" y="280"/>
+   <rock    x="230" y="280"/>
+   <rock    x="220" y="280"/>
+   <rock    x="210" y="280"/>
+   <rock    x="200" y="280"/>
+
+
+   <light   x="290" y="270"/>
+   <light   x="290" y="280"/>
+
+
+</world>

@@ -7,9 +7,5 @@
 <flocker x="100" y="250" heading="0"
          clear="true" debug="true"
          evade="false" align="false" center="false" follow="false" />
-
-
 <rock    x="300" y="250" />
-
-
 </world>
