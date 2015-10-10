@@ -604,7 +604,6 @@ public class Flocker extends Follower {
 
         // found the nearest light, let's create a force going in that direction
         if (nearest_light != null && nearest_light.getDistance() > 0.0){
-            // TODO fix the following force so it works properly
                 ff = new WeightedForce(flocking.followWeight, nearest_light.getAngle());
         }
     	return ff;
