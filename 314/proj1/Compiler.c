@@ -21,9 +21,9 @@
               - EXPR EXPR |
               * EXPR EXPR |
               / EXPR EXPR |
-              VARIABLE | 
+              VARIABLE |
               DIGIT
-     VARIABLE ::= a | b | c | d | e | f | g | h | i | j | k | l | m | n 
+     VARIABLE ::= a | b | c | d | e | f | g | h | i | j | k | l | m | n
      DIGIT ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
      NOTE: tokens are exactly a single character long
@@ -123,7 +123,31 @@ static int expr()
 		CodeGen(ADD, left_reg, right_reg, reg);
 		return reg;
 
-	/* YOUR CODE GOES HERE */
+	// TODO add solutions to case statements
+	case '-':
+		next_token();
+		left_reg = expr();
+		right_reg = expr();
+		reg = next_register();
+		CodeGen(DIV, left_reg, right_reg, reg);
+	return reg;
+
+	case '*':
+		next_token();
+		left_reg = expr();
+		right_reg = expr();
+		reg = next_register();
+		CodeGen(DIV, left_reg, right_reg, reg);
+		return reg;
+
+	case '/':
+		next_token();
+		left_reg = expr();
+		right_reg = expr();
+		reg = next_register();
+		CodeGen(DIV, left_reg, right_reg, reg);
+	return reg;
+
 
 	case 'f':
 		return variable();
@@ -175,12 +199,12 @@ static void stmtlist()
 static void program()
 {
 	/* YOUR CODE GOES HERE */
-        
+
         /* THIS CODE IS BOGUS */
         int dummy;
         /* THIS CODE IS BOGUS */
 	dummy = expr();
-  
+
 	if (token != '.') {
 	  ERROR("Program error.  Current input symbol is %c\n", token);
 	  exit(EXIT_FAILURE);
