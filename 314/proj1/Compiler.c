@@ -14,7 +14,7 @@
      PROGRAM ::= STMTLIST .
      STMTLIST ::= STMT MORESTMTS
      MORESTMTS ::= ; STMTLIST | epsilon
-     STMT ::= ASSIGN | READ | PRINT
+     STMT ::= ASSIGN | PRINT
      ASSIGN ::= VARIABLE = EXPR
      PRINT ::= ! VARIABLE
      EXPR ::= + EXPR EXPR |
@@ -105,6 +105,7 @@ static int variable()
 		exit(EXIT_FAILURE);
 	}
 	reg = next_register();
+
 	CodeGen(LOADAI, 0, (token-'a')*4, reg); /* token - 'a' is offset of varible, *4 for byte address */
 	next_token();
 	return reg;
@@ -115,55 +116,20 @@ static int expr()
 	int reg, left_reg, right_reg;
 
 	switch (token) {
-	case '+':
+	case '+': case '-': case '*': case '/':
 		next_token();
 		left_reg = expr();
 		right_reg = expr();
 		reg = next_register();
-		CodeGen(ADD, left_reg, right_reg, reg);
-		return reg;
-
-	// TODO add solutions to case statements
-	case '-':
-		next_token();
-		left_reg = expr();
-		right_reg = expr();
-		reg = next_register();
-		CodeGen(DIV, left_reg, right_reg, reg);
+		//TODO decompress token ternary statement
+		CodeGen(token=='+'?ADD:token=='-'?SUB:token=='*'?MUL:DIV, left_reg, right_reg, reg);
 	return reg;
 
-	case '*':
-		next_token();
-		left_reg = expr();
-		right_reg = expr();
-		reg = next_register();
-		CodeGen(DIV, left_reg, right_reg, reg);
-		return reg;
-
-	case '/':
-		next_token();
-		left_reg = expr();
-		right_reg = expr();
-		reg = next_register();
-		CodeGen(DIV, left_reg, right_reg, reg);
-	return reg;
-
-
-	case 'f':
+	// TODO look up this '...'
+	case 'a' ... 'n':
 		return variable();
 
-	/* YOUR CODE GOES HERE */
-
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':
+	case '0' ... '9':
 		return digit();
 	default:
 		ERROR("Symbol %c unknown\n", token);
@@ -173,37 +139,87 @@ static int expr()
 
 static void assign()
 {
-	/* YOUR CODE GOES HERE */
+	// ASSIGN ::= VARIABLE = EXPR
+	char ident;
+	if (!is_identifier(token)) {
+		ERROR("Expected identifier\n");
+		exit(EXIT_FAILURE);
+	}
+	// we have an identifier
+	ident = token;
+	// grab next token
+	next_token();
+	if(token != '=') {
+		ERROR("Expected equal sign for assignment statement\n");
+		exit(EXIT_FAILURE);
+	};
+	// grab the next token
+	next_token();
+	int reg;
+    reg = expr();
+
+	CodeGen(STOREAI, ident, reg, EMPTY_FIELD);
 }
 
-static void print()
+static void print() // TODO test print
 {
-	/* YOUR CODE GOES HERE */
+	// PRINT ::= ! VARIABLE
+
+	if(token != '!') {
+		ERROR("Expected print statement\n");
+		exit(EXIT_FAILURE);
+	}
+	next_token();
+	if(!is_identifier(token)) {
+		ERROR("Expected identifier\n");
+		exit(EXIT_FAILURE);
+	}
+	CodeGen(OUTPUTAI, token, EMPTY_FIELD, EMPTY_FIELD);
+	next_token();
 }
 
 static void stmt()
 {
-	/* YOUR CODE GOES HERE */
+	// STMT ::= ASSIGN | PRINT
+
+	switch(token) {
+		case '!':
+			print();
+			break;
+		default:
+			assign();
+	}
+
 }
 
 static void morestmts()
 {
-	/* YOUR CODE GOES HERE */
+	// MORESTMTS ::= ; STMTLIST | epsilon
+
+	if(token == '.') {
+		return;
+	}
+	if(token != ';') {
+		ERROR("Program error.  Current input symbol is %c\n", token);
+		exit(EXIT_FAILURE);
+	}
+	next_token();
+	stmtlist();
+
 }
 
 static void stmtlist()
 {
-	/* YOUR CODE GOES HERE */
+	// STMTLIST ::= STMT MORESTMTS
+
+	stmt();
+	morestmts();
 }
 
 static void program()
 {
-	/* YOUR CODE GOES HERE */
-
-        /* THIS CODE IS BOGUS */
-        int dummy;
-        /* THIS CODE IS BOGUS */
-	dummy = expr();
+	//	PROGRAM ::= STMTLIST .
+	stmtlist();
 
 	if (token != '.') {
 	  ERROR("Program error.  Current input symbol is %c\n", token);
