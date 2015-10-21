@@ -106,7 +106,8 @@ static int variable()
 	}
 	reg = next_register();
 
-	CodeGen(LOADAI, 0, (token-'a')*4, reg); /* token - 'a' is offset of varible, *4 for byte address */
+	/* token - 'a' is offset of varible, *4 for byte address */
+	CodeGen(LOADAI, 0, (token-'a')*4, reg);
 	next_token();
 	return reg;
 }
@@ -116,16 +117,36 @@ static int expr()
 	int reg, left_reg, right_reg;
 
 	switch (token) {
-	case '+': case '-': case '*': case '/':
+	case '+':
 		next_token();
 		left_reg = expr();
 		right_reg = expr();
 		reg = next_register();
-		//TODO decompress token ternary statement
-		CodeGen(token=='+'?ADD:token=='-'?SUB:token=='*'?MUL:DIV, left_reg, right_reg, reg);
-	return reg;
+		CodeGen(ADD, reg, left_reg, right_reg);
+		return reg;
+	/* YOUR CODE GOES HERE */
+	case '-':
+		next_token();
+		left_reg = expr();
+		right_reg = expr();
+		reg = next_register();
+		CodeGen(SUB, reg, left_reg, right_reg);
+		return reg;
+	case '*':
+		next_token();
+		left_reg = expr();
+		right_reg = expr();
+		reg = next_register();
+		CodeGen(MUL, reg, left_reg, right_reg);
+		return reg;
+	case '/':
+		next_token();
+		left_reg = expr();
+		right_reg = expr();
+		reg = next_register();
+		CodeGen(DIV, reg, left_reg, right_reg);
+		return reg;
 
-	// TODO look up this '...'
 	case 'a' ... 'n':
 		return variable();
 
@@ -140,13 +161,15 @@ static int expr()
 static void assign()
 {
 	// ASSIGN ::= VARIABLE = EXPR
-	char ident;
+
+	char current_token;
+	current_token = token ;
+
 	if (!is_identifier(token)) {
 		ERROR("Expected identifier\n");
 		exit(EXIT_FAILURE);
 	}
-	// we have an identifier
-	ident = token;
+
 	// grab next token
 	next_token();
 	if(token != '=') {
@@ -158,30 +181,35 @@ static void assign()
 	int reg;
     reg = expr();
 
-	CodeGen(STOREAI, ident, reg, EMPTY_FIELD);
+	CodeGen(STOREAI, reg, 0, (current_token-'a')*4);
 }
 
-static void print() // TODO test print
+static void print()
 {
 	// PRINT ::= ! VARIABLE
+	char current_token;
 
 	if(token != '!') {
 		ERROR("Expected print statement\n");
 		exit(EXIT_FAILURE);
 	}
+
 	next_token();
+
 	if(!is_identifier(token)) {
 		ERROR("Expected identifier\n");
 		exit(EXIT_FAILURE);
 	}
-	CodeGen(OUTPUTAI, token, EMPTY_FIELD, EMPTY_FIELD);
+
+	current_token = token;
 	next_token();
+	CodeGen(OUTPUTAI, 0, (current_token-'a')*4, 0);
+
 }
 
 static void stmt()
 {
 	// STMT ::= ASSIGN | PRINT
-
 	switch(token) {
 		case '!':
 			print();

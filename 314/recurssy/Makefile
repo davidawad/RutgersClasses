@@ -28,4 +28,3 @@ pretty: Compiler.c InstrUtils.c InstrUtils.h Utils.c Utils.h
 
 clean:
 	rm -rf compile optimize tinyL.out
-
