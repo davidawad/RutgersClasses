@@ -56,3 +56,10 @@ A directed edge between A and B means that a message can be potentially passed f
 
  `yes`  
  (because 8->7->3)
+
+
+3. Robot Charge
+
+Recall the following robot problem from the midterm: A robot is standing in the upper left corner of an n by n grid. It can traverse to a neighboring square (left, right, up, down) in one step (diagonal steps are not allowed). Certain squares contain charging stations. The robot starts fully charged, and after being fully charged it can make 10 steps before running out of power. When the robot passes through a charging station, it is fully recharged. Your task is to plan a route for the robot, if it is possible at all, in which it does not run out of power and reaches the bottom right corner.
+We now modify the problem as follows: Because of the slight tilt of the terrain, only the steps right and down deplete the charge by one unit; moving in the other two directions does not deplete the charge at all. Design an algorithm that under this new condition determines if the robot is able to reach the desired destination.
+As always, the running time of your algorithm should be the best possible. You need to use pseudo-code or code, add a brief summary of your code in English, and explain the running time too. You will be graded on clarity.
