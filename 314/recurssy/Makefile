@@ -9,7 +9,7 @@
 
 CCFLAGS = -ggdb -Wall
 
-all: compile optimize 
+all: clean compile optimize 
 
 compile: Compiler.c InstrUtils.c InstrUtils.h Utils.c Utils.h
 	gcc $(CCFLAGS) Compiler.c InstrUtils.c Utils.c -o compile
