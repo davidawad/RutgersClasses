@@ -9,13 +9,13 @@
 
 CCFLAGS = -ggdb -Wall
 
-all: clean compile optimize 
+all: clean compile optimize
 
 compile: Compiler.c InstrUtils.c InstrUtils.h Utils.c Utils.h
 	gcc $(CCFLAGS) Compiler.c InstrUtils.c Utils.c -o compile
 
 optimize: Optimizer.c InstrUtils.c InstrUtils.h Utils.c Utils.c
-	gcc $(CCFLAGS) Optimizer.c InstrUtils.c Utils.c Utils.h -o optimize
+	gcc $(CCFLAGS) Optimizer.c InstrUtils.c Utils.c Utils.h
 
 # this will reformat your code according to the linux guidelines.
 # be careful when using this command!
@@ -28,3 +28,17 @@ pretty: Compiler.c InstrUtils.c InstrUtils.h Utils.c Utils.h
 
 clean:
 	rm -rf compile optimize tinyL.out
+
+commit: clean
+ifdef m
+	@echo "Committing with $(m)"
+	git add -A
+	git commit -m"$(m)"
+	git push
+else
+	@echo "please specify message"
+endif
+
+test: all
+	./compile tests/test0
+	./a.out < tinyL.out > opt.out

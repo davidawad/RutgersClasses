@@ -15,9 +15,9 @@
 
 int main()
 {
+	printf("Yolo, from %s on line %d\n", __FILE__ , __LINE__);
 	Instruction *head;
 	head = ReadInstructionList(stdin);
-	printf("Yolo, from %s on line %d\n", __FILE__ , __LINE__);
 
 
 	if (!head) {
@@ -35,6 +35,8 @@ int main()
 		count++;
 		curr = curr->next;
 	}
+
+	printf("we received %d instructions\n", count);
 
 	int *vars['n' - 'a'];
 	int *registers = (int *)malloc(sizeof(int)*count);
