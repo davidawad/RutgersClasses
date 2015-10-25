@@ -5,6 +5,7 @@
  *  Authors: Ulrich Kremer                   *
  *  Student Version                          *
  *********************************************
+ * @author David Awad
  */
 
 #include <stdio.h>

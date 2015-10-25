@@ -5,6 +5,7 @@
  *  Author: Ulrich Kremer                    *
  *  Student Version                          *
  *********************************************
+ * @author David Awad
  */
 
 #include <assert.h>
@@ -42,8 +43,8 @@ int main()
 	int vars[14];
 	int *registers = (int *)malloc(sizeof(int)*count);
 
-	// zero out arr
-	for(int i=0; i<14; i++){
+	int i;
+	for(i=0; i<14; i++){
 		vars[i] = 0;
 	}
 
