@@ -15,7 +15,6 @@
 
 int main()
 {
-	printf("Yolo, from %s on line %d\n", __FILE__ , __LINE__);
 	Instruction *head;
 	head = ReadInstructionList(stdin);
 
@@ -24,6 +23,8 @@ int main()
 		WARNING("No instructions\n");
 		exit(EXIT_FAILURE);
 	}
+
+	head->critical = 'Y';
 
 	// iterating pointer, and
 	Instruction *curr;
@@ -36,77 +37,70 @@ int main()
 		curr = curr->next;
 	}
 
-	printf("we received %d instructions\n", count);
+	// printf("we received %d instructions\n", count);
 
-	int *vars['n' - 'a'];
+	int vars[14];
 	int *registers = (int *)malloc(sizeof(int)*count);
+
+	// zero out arr
+	for(int i=0; i<14; i++){
+		vars[i] = 0;
+	}
 
 	// start at last Instruction and simply go
 	// back upwards with each outputAI
 	curr = LastInstruction(head);
-	int ditch = 0;
 	int offset;
 
     while(curr){
-		if(ditch){ // 0, haven't seen an output instruction yet
-			continue;
-		}
 		switch(curr->opcode){
 
 			case OUTPUTAI:
-				ditch = 1;
 				curr->critical = 'Y';
-				// mark variable as active
-				offset = (curr->field2 / 4);
-				*vars[offset] = 1;
-				printf("OUTPUTAI\n");
+				offset = curr->field2 / 4;
+				vars[offset] = 1;
 				break;
 
 			case STOREAI:
-				// variable should be active,
-				// deactivate it as it won't be used again
-				curr->critical = 'Y';
-				offset = (curr->field3 / 4);
-				// this previously active variable has been set
-				vars[offset] = 0;
+				offset = curr->field3 / 4;
+				if(vars[offset] == 1){
+					curr->critical = 'Y';
+					registers[curr->field1] = 1;
+					vars[offset] = 0;
+				}
 				break;
 
 			case LOADAI:
-				if(registers[curr->field3] == 1){
-					// mark instruction critical
+				if (registers[curr->field3] == 1){
 					curr->critical = 'Y';
-					//is this variable being loaded from memory?
-					if(registers[curr->field1] == 1){
-						curr->critical = 'Y';
-					}
-					offset = (curr->field1 );
-					*vars[offset] = 0;
-					continue;
+					offset = curr->field2 / 4;
+					vars[offset] = 1;
+					registers[curr->field3] = 0;
 				}
 				break;
 
 			case LOADI:
 				if(registers[curr->field2] == 1){
 					curr->critical = 'Y';
-					break;
-				}else{
-					break;
+					registers[curr->field2] = 0;
 				}
+				break;
 
 			case ADD:
 			case SUB:
 			case MUL:
 			case DIV:
-				// check the output register
 				if(registers[curr->field3] == 1){
-					// this is writing a critical register
+					curr->critical = 'Y';
+					// mark the other registers necessary
 					registers[curr->field1] = 1;
 					registers[curr->field2] = 1;
-					continue;
-				}else{
-					continue;
 				}
 				break;
+
+			default:
+				ERROR("Illegal instructions\n");
+				exit(EXIT_FAILURE);
 		}
 		// move back pointer towards beginning
 		curr = curr->prev;
@@ -116,7 +110,17 @@ int main()
 	if (head){
 		PrintInstructionList(stdout, head);
 	}
-	// free entire instruction list
+	// free registers array
 	free(registers);
+
+	// free entire instruction list
+	curr = head;
+	Instruction *temp;
+	while(curr) {
+		temp = curr->next;
+		free(curr);
+		curr = temp;
+	}
+
 	return EXIT_SUCCESS;
 }

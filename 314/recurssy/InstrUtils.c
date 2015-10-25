@@ -72,8 +72,9 @@ void PrintInstructionList(FILE * outfile, Instruction * instr)
 
 	Instruction *current_instruction = instr;
 	while (current_instruction) {
-		// TODO print critical instructions
-		PrintInstruction(outfile, current_instruction);
+		if(current_instruction->critical == 'Y'){
+			PrintInstruction(outfile, current_instruction);
+		}
 		current_instruction = current_instruction->next;
 	}
 }

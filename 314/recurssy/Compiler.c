@@ -114,37 +114,37 @@ static int variable()
 
 static int expr()
 {
-	int reg, left_reg, right_reg;
+	int reg, left, right;
 
 	switch (token) {
 	case '+':
 		next_token();
-		left_reg = expr();
-		right_reg = expr();
+		left = expr();
+		right = expr();
 		reg = next_register();
-		CodeGen(ADD, reg, left_reg, right_reg);
+		CodeGen(ADD, left, right, reg);
 		return reg;
 	/* YOUR CODE GOES HERE */
 	case '-':
 		next_token();
-		left_reg = expr();
-		right_reg = expr();
+		left = expr();
+		right = expr();
 		reg = next_register();
-		CodeGen(SUB, reg, left_reg, right_reg);
+		CodeGen(SUB, left, right, reg);
 		return reg;
 	case '*':
 		next_token();
-		left_reg = expr();
-		right_reg = expr();
+		left = expr();
+		right = expr();
 		reg = next_register();
-		CodeGen(MUL, reg, left_reg, right_reg);
+		CodeGen(MUL, left, right, reg);
 		return reg;
 	case '/':
 		next_token();
-		left_reg = expr();
-		right_reg = expr();
+		left = expr();
+		right = expr();
 		reg = next_register();
-		CodeGen(DIV, reg, left_reg, right_reg);
+		CodeGen(DIV, left, right, reg);
 		return reg;
 
 	case 'a' ... 'n':

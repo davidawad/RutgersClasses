@@ -40,5 +40,5 @@ else
 endif
 
 test: all
-	./compile tests/test0
-	./a.out < tinyL.out > opt.out
+	./compile tests/test4
+	./a.out < tinyL.out
