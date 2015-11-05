@@ -14,19 +14,19 @@ import java.util.regex.Pattern;
  *
  * @author Matthew Stone
  * @version 1.0
- * 
- * Data structure for operations on "clauses", 
+ *
+ * Data structure for operations on "clauses",
  * defined as disjunctions of proposition literals.
  * For search homework for CS 440, Oct 2015.
  */
 public class Disjunction {
-	
+
 	/** A table of proposition letters mapped to true or false. */
 	private HashMap<String, Boolean> literals;
 
 	/** A link to an original disjunction after simplification steps. */
 	private Disjunction source;
-	
+
 	/**
 	 * Instantiates a new disjunction with empty literals.
 	 */
@@ -36,9 +36,9 @@ public class Disjunction {
 	}
 
 	/**
-	 * Instantiates a new disjunction with literals 
+	 * Instantiates a new disjunction with literals
 	 * copied from another; internal method used to
-	 * make sure we have a functional interface that 
+	 * make sure we have a functional interface that
 	 * lets us create new search states in new memory,
 	 * so they can be modified freely at construction time.
 	 *
@@ -50,7 +50,7 @@ public class Disjunction {
 		source = model.source;
 	}
 
-	
+
 	/**
 	 * Gets the source of this disjunction.
 	 *
@@ -61,9 +61,9 @@ public class Disjunction {
 	}
 
 	/**
-	 * computes the truth value of this disjunction under the 
-	 * passed assignment.  a return value of null means that 
-	 * the assignment is partial and the truth value of the 
+	 * computes the truth value of this disjunction under the
+	 * passed assignment.  a return value of null means that
+	 * the assignment is partial and the truth value of the
 	 * disjunction is not determined.
 	 *
 	 * @param assignment truth values for proposition letters
@@ -87,7 +87,7 @@ public class Disjunction {
 			return new Boolean(false);
 		}
 	}
-	
+
 	/**
 	 * Join.
 	 * An implementation of the string "join" operation
@@ -97,7 +97,7 @@ public class Disjunction {
 	 * @param delimiter the delimiter to separate instances in s
 	 * @param s the strings to be combined
 	 * @return the result of joining together the elements of s
-	 *         separated by the delimiter 
+	 *         separated by the delimiter
 	 */
 	public static String join(String delimiter, Iterable<? extends CharSequence> s) {
 		Iterator<? extends CharSequence> iter = s.iterator();
@@ -151,9 +151,9 @@ public class Disjunction {
 	 * Unit var.
 	 * Get the variable associated with a unit disjunction
 	 * (one with a single literal)
-	 * 
+	 *
 	 * @return the name of the only proposition variable in
-	 *   the disjunction, if it is a unit clause; 
+	 *   the disjunction, if it is a unit clause;
 	 *   null otherwise.
 	 */
 	public String unitVar() {
@@ -167,9 +167,9 @@ public class Disjunction {
 
 	/**
 	 * Unit val.
-	 * Get the polarity of the variable associated with a 
+	 * Get the polarity of the variable associated with a
 	 * unit disjunction (one with a single literal)
-	 * 
+	 *
 	 * @return true if the only literal in the disjunction
 	 *   is positive; false if it's negative; null if
 	 *   the disjunction is not a unit clause.
@@ -201,15 +201,15 @@ public class Disjunction {
 	public boolean containsLiteral(String s) {
 		return literals.containsKey(s);
 	}
-	
+
 	/**
 	 * Accumulate pure variables: update m and s to reflect all
 	 * variables in this disjunction with their polarities.
 	 *
-	 * @param m a map giving the polarity assigned to all potentially 
+	 * @param m a map giving the polarity assigned to all potentially
 	 *   pure variables that have been encountered so far
 	 * @param s a set giving all the variables that we have
-	 *   already encountered with 
+	 *   already encountered with
 	 *   both positive and negative occurrences.
 	 */
 	void accumulatePureVars(Map<String, Boolean> m, Set<String> s) {
@@ -240,20 +240,20 @@ public class Disjunction {
 			if (literals.get(v)) {
 				if (!pos.containsKey(v)) {
 					pos.put(v, 1);
-				}	
+				}
 				else {
 					pos.put(v, 1 + pos.get(v));
 				}
 			} else {
 				if (!neg.containsKey(v)) {
 					neg.put(v, 1);
-				}	
+				}
 				else {
 					neg.put(v, 1 + neg.get(v));
 				}
-				
+
 			}
-				
+
 		}
 	}
 
@@ -262,7 +262,7 @@ public class Disjunction {
 	 * Comparator for ordering Disjunctions in increasing order by size.
 	 */
 	static class DisjunctionComparator implements Comparator<Disjunction> {
-		
+
 		/* (non-Javadoc)
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
@@ -304,12 +304,12 @@ public class Disjunction {
 	 * If clause d1 and clause d2 resolve against one another to
 	 * yield another, non-tautological clause, return the result.
 	 * formally to resolve
-	 *   (a1 ... ai-1 | c | ai+1 ... am) 
+	 *   (a1 ... ai-1 | c | ai+1 ... am)
 	 * with
 	 *   (b1 ... bj-1 | -c | bj+1 ... bn)
 	 * to get
 	 *   (a1 ... ai-1 | ai+1 ... am | b1 ... bj-1 | bj+1 ... bn)
-	 * see 
+	 * see
 	 *   https://en.wikipedia.org/wiki/Resolution_(logic)
 	 *
 	 * @param d1 a first disjunction
@@ -342,15 +342,15 @@ public class Disjunction {
 		}
 		return result;
 	}
-	
+
 	/** A template for matching one literal in a clauses. */
-	protected static final Pattern literalPattern = 
+	protected static final Pattern literalPattern =
 			Pattern.compile("[\\s]*(-[\\s]*)?([^\\s|]+)[\\s|]*");
 
 	/**
 	 * Puts the next literal that can be read from the input string
 	 * into this disjunction.  Throws IOException in case there is
-	 * no correctly formatted literal next.  Returns the number of 
+	 * no correctly formatted literal next.  Returns the number of
 	 * characters consumed by in matching the literal extraction pattern
 	 * against the current input.
 	 *
@@ -376,11 +376,11 @@ public class Disjunction {
 		String v = m.group(2);
 		if (containsLiteral(v) && b ^ literals.get(v)) {
 			throw new IOException("Conflicting literal: " + v);
-		} 
+		}
 		put(v, b);
 		return m.end();
 	}
-	
+
 	/**
 	 * Read in a disjunction from the passed string.
 	 *
@@ -399,7 +399,7 @@ public class Disjunction {
 
 	/**
 	 * The main method.
-	 * A collection of tests to verify the 
+	 * A collection of tests to verify the
 	 * implementation of disjunctions.
 	 *
 	 * @param args the arguments
