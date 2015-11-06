@@ -1,11 +1,9 @@
-all:run 
+all: run
 
-
-
-run: 
+run:
 	javac Conjunction.java
 	java Conjunction
 
-
 clean:
 	rm *.class
+	clear

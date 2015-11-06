@@ -614,14 +614,16 @@ public class Conjunction {
 	    /* TODO: Your code here, replacing the line below */
 
 		public void simplify(Conjunction c) {
-			// see if any variables are true
-
-		;}
+			c.propagateUnitClauses();
+			c.assumePureLiterals();
+			return;
+		}
 
 		public Assignment pick(Conjunction c) {
-			return new Assignment(c.alphabeticallyFirstVariable(), new Boolean(true));
+			return c.mostFrequentVariable();
 		}
-		public boolean backjump() { return false; }
+
+		public boolean backjump() {return true;}
 	};
 
 	/**
@@ -635,39 +637,59 @@ public class Conjunction {
 	 * @return search result structure describing what happened
 	 */
 	SearchResult search(SearchControl control, SearchStats stats, int depth) {
-	    /* TODO: Your code here, replacing the line below */
-
 		if(SearchThread.interrupted()){
 			return new SearchResult(SearchStatus.Timeout);
 		}
-		// 1.	use logical inference to simplify state
-		// 2.   if we know state is satisfiable:
-		// 3.   return solution based on state
+		control.simplify(this);
 
+		if(this.isConsistent()){ // satisfiability means no more disjuncts
+			stats.succeed(depth);
+			return new SearchResult(assignments);
+		}
 		if(this.isInconsistent()){
 			return new SearchResult(conflictInducedClause());
 		}
-		Assignment temp_assign = control.pick(this);
-
-		System.out.println(temp_assign.v);
-
-		Conjunction current_conj = new Conjunction(this, temp_assign.v, temp_assign.b);
+		// create new state, call search
+		Assignment state = control.pick(this);
+		Conjunction current_conj = new Conjunction(this, state.v, state.b);
 		SearchResult res =  current_conj.search(control, stats, depth+1);
 
-		// if you get back a success, return it
 		if(res.status == SearchStatus.Success){
 			return res;
 		}
-		else if(res.status == SearchStatus.Failure){ // if you get a failure, do search with not b as the value
-			current_conj = new Conjunction(this, temp_assign.v, !temp_assign.b);
+
+		if(res.status == SearchStatus.Failure){ // if you get a failure, do search with not b as the value
+
+
+			if(control.backjump()){ // if backjumping is enabled
+				Disjunction clause = res.getConflictInducedClause();
+				if(clause != null){
+					//Boolean failed_assignment = !clause.containsLiteral(state.v);
+					Boolean failed_assignment = clause.truthValue(assignments);
+
+					if(failed_assignment != null && failed_assignment == false){
+						return new SearchResult(SearchStatus.Failure);
+					}
+				}
+			}
+
+			current_conj = new Conjunction(this, state.v, !state.b);
 			res =  current_conj.search(control, stats, depth+1);
+			// if success happens with flipped boolean return that
+			if(res.status == SearchStatus.Success){
+				return res;
+			}else if(res.status == SearchStatus.Failure){
+				stats.deadEnd(depth);
+				return new SearchResult(conflictInducedClause());
+			}else{
+				return new SearchResult(SearchStatus.Timeout);
+			}
 		}
-		else{
-			// yolo, throw an error yolo
-			return new SearchResult(conflictInducedClause());
+		else{ // timeout
+			return new SearchResult(SearchStatus.Timeout);
 		}
 		// for the sake of the compiler
-		return new SearchResult((Disjunction) null);
+		// return new SearchResult((Disjunction) null);
 	}
 
 	/**
@@ -799,7 +821,20 @@ public class Conjunction {
 	 */
 	public static void main(String[] args) throws IOException {
 	    /* TODO: Explore some interesting examples, using patterns such as the following */
-	    String o = doSearchWithTimeLimit("simple_v3_c2.cnf", vanillaSearch, 1000L);
+
+		// String o = doSearchWithTimeLimit("unsolvable.cnf", superFancySearch, 1000L);
+
+		// String o = doSearchWithTimeLimit("Examples/quinn.cnf", superFancySearch, 1000L);
+
+		String o = "";
+		if(args.length > 1) {
+			o = doSearchWithTimeLimit(args[1], superFancySearch, 1000L);
+		}
+		else {
+			o = doSearchWithTimeLimit("Examples/dubois20.cnf", superFancySearch, 1000L);
+		}
+
+
 		System.err.println(o);
   	}
 }
