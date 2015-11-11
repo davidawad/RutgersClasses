@@ -660,13 +660,11 @@ public class Conjunction {
 
 		if(res.status == SearchStatus.Failure){ // if you get a failure, do search with not b as the value
 
-
 			if(control.backjump()){ // if backjumping is enabled
 				Disjunction clause = res.getConflictInducedClause();
 				if(clause != null){
 					//Boolean failed_assignment = !clause.containsLiteral(state.v);
 					Boolean failed_assignment = clause.truthValue(assignments);
-
 					if(failed_assignment != null && failed_assignment == false){
 						return new SearchResult(SearchStatus.Failure);
 					}
@@ -688,8 +686,6 @@ public class Conjunction {
 		else{ // timeout
 			return new SearchResult(SearchStatus.Timeout);
 		}
-		// for the sake of the compiler
-		// return new SearchResult((Disjunction) null);
 	}
 
 	/**
@@ -822,17 +818,9 @@ public class Conjunction {
 	public static void main(String[] args) throws IOException {
 	    /* TODO: Explore some interesting examples, using patterns such as the following */
 
-		// String o = doSearchWithTimeLimit("unsolvable.cnf", superFancySearch, 1000L);
+		String o = doSearchWithTimeLimit("uf100-0479.cnf", superFancySearch, 1000L);
 
 		// String o = doSearchWithTimeLimit("Examples/quinn.cnf", superFancySearch, 1000L);
-
-		String o = "";
-		if(args.length > 1) {
-			o = doSearchWithTimeLimit(args[1], superFancySearch, 1000L);
-		}
-		else {
-			o = doSearchWithTimeLimit("Examples/dubois20.cnf", superFancySearch, 1000L);
-		}
 
 
 		System.err.println(o);
