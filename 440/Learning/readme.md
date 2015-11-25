@@ -8,7 +8,7 @@ So there is actually only one function to write for this assignment. It is the m
 
 ```java
 public Rating predict(String rater, String item, Method method, int numItemNeighbors, int numRaterNeighbors) {
-	// Your code here, e.g.
+	// TODO Your code here
 	double score = this.defaultScore();
     return new Rating(rater, item, score);
 }

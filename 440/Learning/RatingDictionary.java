@@ -457,35 +457,88 @@ public class RatingDictionary {
     public Rating predict(String rater, String item, Method method,
 			  int numItemNeighbors, int numRaterNeighbors) {
 
-        double score = 0;
-        double norm = 0;
-        int ct = 0;
+        double current_rating = 0.0;
 
-        if (method == Method.ITEM_BASELINE) {
-            // TODO: Your code here.
+        /* Make a prediction based on the specified prediction method. */
+        switch (method) {
+            case ITEM_BASELINE:
+                current_rating = itemData.get(item).getAverage();
+                break;
+
+            case RATER_BASELINE:
+                current_rating = raterData.get(rater).getAverage();
+                 break;
+
+            case MIXED_BASELINE:
+                 current_rating = geometricMeanBaseline(rater, item);
+                 break;
+
+            case RATER_SIMILARITY:
+                current_rating = raterSim(rater, numRaterNeighbors);
+                break;
+
+            case ITEM_SIMILARITY:
+                current_rating = itemSim(item, numItemNeighbors);
+                break;
+
+            case CUSTOM:
+                // weighted average of the item and rater similarity
+                // where rweight is the weight of the similar raters
+                double rweight = 0.25;
+
+                double rater_n = (rweight * raterSim(rater, numRaterNeighbors));
+                double item_n = ((1.0 - rweight) * itemSim(item, numItemNeighbors));
+
+                current_rating =  ( (rater_n + item_n) / 2.0) ;
+                break;
+
+            default:
+                current_rating = this.defaultScore();
+                break;
         }
 
-        if (method == Method.RATER_BASELINE) {
-            // TODO: Your code here.
-        }
+        return new Rating(rater, item, current_rating);
+    }
 
-        if (method == Method.MIXED_BASELINE) {
-            // TODO: Your code here.
-        }
 
-        if (method == Method.ITEM_SIMILARITY) {
-            // TODO: Your code here.
-        }
+    public double itemSim(String item, int numItemNeighbors) {
+        ArrayList<SimilarityTable.Similarity> similars = itemNeighbors.get(item).similarities;
+        // double to use as the normal
+        double n = 0.0;
 
-        if (method == Method.RATER_SIMILARITY) {
-            // TODO: Your code here.
+        if (similars.isEmpty()) {
+            return itemData.get(item).getAverage();
         }
+        else {
+            int count = 0;
+            int len = Math.min(numItemNeighbors, similars.size());
 
-        if (method == Method.CUSTOM) {
-            // TODO: Your code here.
+            for (int i = 0; i < len; i++, count++) {
+                SimilarityTable.Similarity s = similars.get(i);
+                n += s.value * s.predict(itemData.get(s.key).getAverage());
+            }
+            return n / count;
         }
+    }
 
-        return new Rating(rater, item, this.defaultScore());
+    public double raterSim(String rater, int numRaterNeighbors) {
+        ArrayList<SimilarityTable.Similarity> similars = raterNeighbors.get(rater).similarities;
+        double n = 0.0;
+
+        if (similars.isEmpty()) {
+            return raterData.get(rater).getAverage();
+        }
+        else {
+            int count = 0;
+            int len = Math.min(numRaterNeighbors, similars.size());
+
+            for (int i = 0; i < len; i++, count++) {
+                SimilarityTable.Similarity s = similars.get(i);
+
+                n += s.value * s.predict(raterData.get(s.key).getAverage());
+            }
+            return n / count;
+        }
     }
 
     ////////////////////////////////////////////////////////////////
