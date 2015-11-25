@@ -5,6 +5,15 @@
 ; *  Student Version                          *
 ; *********************************************
 
+#lang racket
+
+(require racket/include)
+
+(include "dictionary.ss")
+
+(include "include.ss")
+
+
 ;; contains "ctv", "A", and "reduce" definitions
 (load "include.ss")
 
@@ -16,19 +25,34 @@
 
 ;; *** CODE FOR ANY HELPER FUNCTION GOES HERE ***
 
+(define map
+    (lambda (op l id)
+        (if (null? l)
+            id
+            (op (car 1) (reduce op (cdr l) id)) )
+    )
+)
+
+(define op
+    (lambda (c acu) ;; define char and accumulator
+        (+ (* acu 31)  (ctv(c)))
+    )
+)
 
 ;; -----------------------------------------------------
-;; KEY FUNCTION
-
+;; KEY FUNCTION TODO
 (define key
   (lambda (w)
-     'SOME_CODE_GOES_HERE ;; *** FUNCTION BODY IS MISSING ***
-))
+     (reduce op w 5387)
+  )
+)
+
+(display (key '(h e l l o)))
 
 ;; -----------------------------------------------------
 ;; EXAMPLE KEY VALUES
 ;;   (key '(h e l l o))     = 154238504134
-;;   (key '(w a y))         = 160507203 
+;;   (key '(w a y))         = 160507203
 ;;   (key '(r a i n b o w)) = 148230379423562
 
 ;; -----------------------------------------------------
@@ -36,7 +60,7 @@
 
 ;; value of parameter "size" should be a prime number
 (define gen-hash-division-method
-  (lambda (size) ;; range of values: 0..size-1
+  (lambda (size) ;; range of values: 0..size-1 TODO
      'SOME_CODE_GOES_HERE ;; *** FUNCTION BODY IS MISSING ***
 ))
 
@@ -87,9 +111,11 @@
 ;; -----------------------------------------------------
 ;; SPELL CHECKER GENERATOR
 
+
+
 (define gen-checker
   (lambda (hashfunctionlist dict)
-     'SOME_CODE_GOES_HERE ;; *** FUNCTION BODY IS MISSING ***
+     'SOME_CODE_GOES_HERE ;; TODO *** FUNCTION BODY IS MISSING ***
 ))
 
 
@@ -104,4 +130,3 @@
 ;;
 ;;  (checker-1 '(a r g g g g)) ==> #f
 ;;  (checker-2 '(h e l l o)) ==> #t
-
