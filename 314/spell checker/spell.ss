@@ -47,7 +47,6 @@
   )
 )
 
-(display (key '(h e l l o)))
 
 ;; -----------------------------------------------------
 ;; EXAMPLE KEY VALUES
@@ -60,8 +59,10 @@
 
 ;; value of parameter "size" should be a prime number
 (define gen-hash-division-method
-  (lambda (size) ;; range of values: 0..size-1 TODO
-     'SOME_CODE_GOES_HERE ;; *** FUNCTION BODY IS MISSING ***
+  (lambda (size)
+    (lambda (k) ;; range of values: 0..size-1 TODO
+     (modulo size k)
+     )
 ))
 
 ;; value of parameter "size" is not critical
@@ -69,8 +70,10 @@
 ;;       format, e.g., 17.0 for 17
 
 (define gen-hash-multiplication-method
-  (lambda (size) ;; range of values: 0..size-1
-     'SOME_CODE_GOES_HERE ;; *** FUNCTION BODY IS MISSING ***
+  (lambda (size) ;; TODO range of values: 0..size-1
+     (lambda (k)
+         (floor ( (* size (- (* k A) (floor((* k A)))   )  )  )
+         )
 ))
 
 

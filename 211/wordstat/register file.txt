@@ -1,0 +1,24 @@
+rax            0x602250 6300240                                                                                                                    
+rbx            0x0      0                                                                                                                                  
+rcx            0x7ffff7b24730   140737349044016                                                                                          
+rdx            0xa      10                                                                                                                                                                                                     
+rsi            0x0      0                                                                                                                                                         
+rdi            0x602250 6300240                                                                                                                                                                
+rbp            0x7fffffffdf10   0x7fffffffdf10                                                                                                           
+rsp            0x7fffffffdf00   0x7fffffffdf00                                                                                                                                                      
+r8             0x6022a0 6300320                                                                                                                                                                                          
+r9             0x7ffff7fbd700   140737353864960                                                                                                                                             
+r10            0x22     34                                                                                                                                          
+r11            0x246    582                                                                                                                                                           
+r12            0x4007f0 4196336                                                                                                                                                   
+r13            0x7fffffffe030   140737488347184                                                                                                                                
+r14            0x0      0                                                                                                                                                                                              
+r15            0x0      0                                                                                                                                                                                                     
+rip            0x40094c 0x40094c <processStr+12>                                                                                                                                                                                      
+eflags         0x206    [ PF IF ]                                                                                                      
+cs             0x33     51                                                                                                                                                                                                
+ss             0x2b     43                                                                                                                                                                                            
+ds             0x0      0                                                                                                                                                                                      
+es             0x0      0                                                                                                                                                                                            
+fs             0x0      0                                                                                                                                                        
+gs             0x0      0  
