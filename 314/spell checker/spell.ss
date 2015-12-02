@@ -88,21 +88,21 @@
 ;; EXAMPLE HASH VALUES
 ;;   to test your hash function implementation
 ;;
-(hash-1 '(h e l l o));     ==> 53236
-(hash-1 '(w a y));         ==> 23124 
-(hash-1 '(r a i n b o w)); ==> 17039 
+;(hash-1 '(h e l l o));     ==> 53236
+;(hash-1 '(w a y));         ==> 23124 
+;(hash-1 '(r a i n b o w)); ==> 17039 
 ;;
-(hash-2 '(h e l l o)) ;      ==> 25588 
-(hash-2 '(w a y)) ;        ==> 42552 
-(hash-2 '(r a i n b o w)) ;  ==> 70913 
+;(hash-2 '(h e l l o)) ;      ==> 25588 
+;(hash-2 '(w a y)) ;        ==> 42552 
+;(hash-2 '(r a i n b o w)) ;  ==> 70913 
 ;;
-(hash-3 '(h e l l o));      ==> 415458.0 
-(hash-3 '(w a y));         ==> 390702.0 
-(hash-4 '(r a i n b o w)); ==> 503286.0 
+;(hash-3 '(h e l l o));      ==> 415458.0 
+;(hash-3 '(w a y));         ==> 390702.0 
+;(hash-4 '(r a i n b o w)); ==> 503286.0 
 ;;
-(hash-4 '(h e l l o));     ==> 533.0
-(hash-4 '(w a y));         ==> 502.0
-(hash-4 '(r a i n b o w)); ==> 646.0
+;(hash-4 '(h e l l o));     ==> 533.0
+;(hash-4 '(w a y));         ==> 502.0
+;(hash-4 '(r a i n b o w)); ==> 646.0
 
 ;; -----------------------------------------------------
 ;; SPELL CHECKER GENERATOR
@@ -127,6 +127,6 @@
 
 ;; EXAMPLE APPLICATIONS OF A SPELL CHECKER
 ;;
-(checker-1 '(a r g g g g)); ==> #f
-(checker-2 '(h e l l o)); ==> #t
-(checker-3 '(c e l l o)); not in the file? 
+;(checker-1 '(a r g g g g)); ==> #f
+;(checker-2 '(h e l l o)); ==> #t
+;(checker-3 '(c e l l o)); not in the file? 
