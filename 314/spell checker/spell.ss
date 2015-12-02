@@ -5,25 +5,20 @@
 ; *  Student Version                          *
 ; *********************************************
 
+;#lang racket
 
-;; TODO REMOVE THESE LINES BEFORE SUBMISSION
+;(require racket/include)
 
-#lang racket
+;(include "dictionary.ss")
 
-(require racket/include)
-
-(include "dictionary.ss")
-
-(include "include.ss")
-
-;; TODO REMOVE THESE LINES BEFORE SUBMISSION
+;(include "include.ss")
 
 
 ;; contains "ctv", "A", and "reduce" definitions
-; (load "include.ss")
+(load "include.ss")
 
 ;; contains simple dictionary definition
-; (load "test-dictionary.ss")
+(load "test-dictionary.ss")
 
 ;; -----------------------------------------------------
 ;; HELPER FUNCTIONS
@@ -110,25 +105,13 @@
 (hash-4 '(r a i n b o w)); ==> 646.0
 
 ;; -----------------------------------------------------
-;; SPELL CHECKER GENERATOR TODO
+;; SPELL CHECKER GENERATOR
 (define (gen-checker hashfunctionlist dict)
   (lambda (word)
     (reduce and_reducer (map (lambda(hash_fn hash_dict) (reduce or_reducer (map (lambda(h_w) (= h_w (hash_fn word))) hash_dict) #f) ) hashfunctionlist (map (lambda(fn) (map fn dict)) hashfunctionlist)) #t)
     
     ;(lambda(hash_fn) (reduce or_reducer (map is_equal hash_dict (hash_fn w)) #f))
     )
-  )
-
-(define (dict_checker hash_fn hash_dict w)
-  ;; takes individual hash functions
-  (reduce or_reducer (map is_equal hash_dict (hash_fn w)) #f)
-  
-  )
-
-(define (is_equal hw cw) (= hw cw))
-(define (fn_mapper hash_fn dict)
-  ;; takes the individual hash functions and applies them to each item in the dictionary
-  (map hash_fn dict)
   )
 
 (define (and_reducer curr acc) (and curr acc))
@@ -146,4 +129,4 @@
 ;;
 (checker-1 '(a r g g g g)); ==> #f
 (checker-2 '(h e l l o)); ==> #t
-(checker-3 '(c e l l o))
+(checker-3 '(c e l l o)); not in the file? 
