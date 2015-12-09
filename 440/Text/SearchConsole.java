@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * Search, learning and problem solving: SearchConsole.java
  * Top-level code for playing with search problems.
  *
- * Adapted by Matthew Stone from Roy Frostig's 
+ * Adapted by Matthew Stone from Roy Frostig's
  * text reconstruction assignment (util.py)
  * for the Stanford AI class.
  *
@@ -24,11 +24,11 @@ public class SearchConsole {
 	public String name;
 	/** what to print on the help line and before results appear */
 	public String description;
-	
+
 	/**
 	 * Constructor
 	 * @param name what to call the command
-	 * @param description what to print on the help line 
+	 * @param description what to print on the help line
 	 */
 	public VisualizationCmd(String name, String description) {
 	    this.name = name;
@@ -90,10 +90,10 @@ public class SearchConsole {
 	    this.builder = builder;
 	}
 	/**
-	 * Preprocessing operation on input tokens, 
+	 * Preprocessing operation on input tokens,
 	 * to set up an appropriate problem in the case of
 	 * reconstruction problems where it's easiest to
-	 * give the input after reconstruction 
+	 * give the input after reconstruction
 	 * (e.g., create a vowel search problem with ordinary typing)
 	 *
 	 * @param args input tokens including command name
@@ -106,31 +106,31 @@ public class SearchConsole {
     /** Commands for driving search */
     static public ArrayList<SearchCmd> cmds = new ArrayList<SearchCmd>();
     static {
-	cmds.add(new SearchCmd("cc", "Finding recipe for %s\n", 
+	cmds.add(new SearchCmd("cc", "Finding recipe for %s\n",
 			       new TestSearchState.Builder()));
 
 	/*
 	 * Add back in the code below when you're ready to test
 	 * your implementation of SpaceSearchState:
-	cmds.add(new SearchCmd("sp", "Adding spaces to %s\n", 
-			       new SpaceSearchState.Builder()) {
+     */
+	cmds.add(new SearchCmd("sp", "Adding spaces to %s\n", new SpaceSearchState.Builder()) {
 		@Override
 		public String simplify(String[] args) {
 		    return LangUtil.join(Arrays.asList(Arrays.copyOfRange(args, 1, args.length)), "");
 		}
-	    });
-	*/
+	});
+
 
 	/*
 	 * Add back in the code below when you're ready to test
 	 * your implementation of VowelSearchState:
+     */
 	cmds.add(new SearchCmd("vw", "Adding vowels to %s\n", new VowelSearchState.Builder()) {
 		@Override
 		public String simplify(String[] args) {
 		    return LangUtil.removeVowels(LangUtil.join(Arrays.asList(Arrays.copyOfRange(args, 1, args.length)), " "));
 		}
-	    });
-	*/
+	});
 
 	/*
 	 * Add back in the code below when you're ready to test
@@ -145,9 +145,9 @@ public class SearchConsole {
     }
 
     /** Manage interactive IO */
-    private BufferedReader inputReader = 
+    private BufferedReader inputReader =
 	new BufferedReader(new InputStreamReader(System.in));
-    
+
     /**
      * Display a prompt and read a line of input
      * @return user input
@@ -226,7 +226,7 @@ public class SearchConsole {
 	try {
 	    Node n = search.solve();
 	    if (n != null) {
-		System.out.println("\nSolution found (" + 
+		System.out.println("\nSolution found (" +
 				   Double.toString(n.getPriority()) +
 				   "): " + n.history());
 	    } else {

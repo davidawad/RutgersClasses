@@ -12,7 +12,7 @@ import java.util.Collection;
  *
  * The work area starts out empty. You can fill the measures to move
  * the measured quantity of flour from the supply to the work area or
- * to dump out quantities from the work area into the trash.  
+ * to dump out quantities from the work area into the trash.
  *
  * You can only move full measures (and there needs to be enough flour
  * to fill them).  It costs $6 to get a 3 cup measure and $9 to get a
@@ -51,7 +51,7 @@ public class TestSearchState implements SearchState {
     /*
      * Note: SearchState classes should override the methods
      * equals and hashCode that are attributes of every Java Object.
-     * = equals() should make sure that SearchStates that 
+     * = equals() should make sure that SearchStates that
      *   represent the same problem-solving situation
      *   are treated as equal; this enables the frontier
      *   structure to correctly detect and avoid duplicates
@@ -74,7 +74,7 @@ public class TestSearchState implements SearchState {
      *
      * @param other Object to test for equality
      */
-    @Override 
+    @Override
     public boolean equals(Object other) {
 	if (other == null) return false;
 	if (other == this) return true;
@@ -86,23 +86,23 @@ public class TestSearchState implements SearchState {
 
     /**
      *  Assign a hash value to be used in indexing TestSearchState
-     *  objects.  Uses only the attributes that matter for 
+     *  objects.  Uses only the attributes that matter for
      *  equality: the two fields quantity and goal in the state.
-     *  The typical strategy for overriding hashCode() is to use XOR (^) 
+     *  The typical strategy for overriding hashCode() is to use XOR (^)
      *  to combine together the results of calling hashCode() on the
      *  meaningful fields of the data structure - in this case though
      *  we just have integers so we just XOR them together directly.
      *
      * @return hash value for indexing TestSearchState
      */
-    @Override 
+    @Override
     public int hashCode() {
 	return quantity ^ goal;
     }
 
     /**
      * This Builder class illustrates the builder pattern
-     * to get the initial state 
+     * to get the initial state
      * corresponding to a search problem.
      */
     public static class Builder extends SearchState.Builder {
@@ -113,7 +113,7 @@ public class TestSearchState implements SearchState {
 	 * @param targetQuantity specification of the problem instance to solve
 	 * @return initial search state corresponding to this problem
 	 */
-	public SearchState makeInitialState(String targetQuantity) 
+	public SearchState makeInitialState(String targetQuantity)
 	    throws IllegalArgumentException {
 	    try {
 		return new TestSearchState(0, Integer.parseInt(targetQuantity));
@@ -154,13 +154,13 @@ public class TestSearchState implements SearchState {
      * @return the cost of taking that action in this state
      */
     public double getActionCost(String action) {
-	if (action.equals(ADD_THREE)) {
-	    return 6;
-	} else if (action.equals(ADD_FIVE)) {
-	    return 9;
-	} else {
-	    return 0;
-	}
+    	if (action.equals(ADD_THREE)) {
+    	    return 6;
+    	} else if (action.equals(ADD_FIVE)) {
+    	    return 9;
+    	} else {
+    	    return 0;
+    	}
     }
 
     /**
@@ -171,16 +171,16 @@ public class TestSearchState implements SearchState {
      * @return the successor state obtained by applying that action next
      */
     public TestSearchState applyAction(String action) {
-	if (action.equals(ADD_THREE)) {
-	    return new TestSearchState(quantity + 3, goal);
-	} else if (action.equals(ADD_FIVE)) {
-	    return new TestSearchState(quantity + 5, goal);
-	} else if (action.equals(DUMP_THREE)) {
-	    return new TestSearchState(quantity - 3, goal);
-	} else if (action.equals(DUMP_FIVE)) {
-	    return new TestSearchState(quantity - 5, goal);
-	} else {
-	    return this;
-	}
-    }	
+    	if (action.equals(ADD_THREE)) {
+    	    return new TestSearchState(quantity + 3, goal);
+    	} else if (action.equals(ADD_FIVE)) {
+    	    return new TestSearchState(quantity + 5, goal);
+    	} else if (action.equals(DUMP_THREE)) {
+    	    return new TestSearchState(quantity - 3, goal);
+    	} else if (action.equals(DUMP_FIVE)) {
+    	    return new TestSearchState(quantity - 5, goal);
+    	} else {
+    	    return this;
+    	}
+    }
 }
