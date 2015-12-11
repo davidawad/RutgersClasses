@@ -122,7 +122,7 @@ public class SearchConsole {
 
 
 	/*
-	 * Add back in the code below when you're ready to test
+ 	 * Add back in the code below when you're ready to test
 	 * your implementation of VowelSearchState:
      */
 	cmds.add(new SearchCmd("vw", "Adding vowels to %s\n", new VowelSearchState.Builder()) {
@@ -134,14 +134,14 @@ public class SearchConsole {
 
 	/*
 	 * Add back in the code below when you're ready to test
-	 * your implementation of CombinedSearchState:
+	 * your implementation of CombinedSearchState: */
 	cmds.add(new SearchCmd("sv", "Adding vowels and spaces to %s\n", new CombinedSearchState.Builder()) {
 		@Override
 		public String simplify(String[] args) {
 		    return LangUtil.removeVowels(LangUtil.join(Arrays.asList(Arrays.copyOfRange(args, 1, args.length)), ""));
 		}
-	    });
-	*/
+	});
+
     }
 
     /** Manage interactive IO */

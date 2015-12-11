@@ -9,11 +9,6 @@ public class VowelSearchState implements SearchState {
     final String    input;
     final String     prev;
 
-    /**
-     * Constructor
-     * @param index     Current index at this state
-     * @param input     Passing constant input through
-     */
     private VowelSearchState(int index, String input, String prev) {
     	this.input = input;
     	this.index = index;
@@ -26,35 +21,32 @@ public class VowelSearchState implements SearchState {
     	if (other == this) return true;
     	if (!(other instanceof VowelSearchState)) return false;
 
-    	VowelSearchState otherState = (VowelSearchState) other;
-    	return (otherState.index == this.index &&
-    		otherState.input.equals(this.input) &&
-            otherState.prev.equals(this.prev)  );
+    	VowelSearchState temp = (VowelSearchState) other;
+    	return (temp.index == this.index &&
+    		temp.input.equals(this.input) &&
+            temp.prev.equals(this.prev));
     }
 
 
     @Override
     public int hashCode() {
-	   return index;
+	   return prev.hashCode() ^ index ;
     }
 
     public static class Builder extends SearchState.Builder {
-	/**
-	 * @param targetQuantity specification of the problem instance to solve
-	 * @return initial search state corresponding to this problem
-	 */
+
 		public SearchState makeInitialState(String targetQuantity)
 		    throws IllegalArgumentException {
-		    try {
-               // create new vowel search state with previous added in
-		       VowelSearchState temp = new VowelSearchState(0, targetQuantity, "-BEGIN-");
-               return temp;
+    		    try {
+                   // create new vowel search state with previous added in
+    		       VowelSearchState temp = new VowelSearchState(0, targetQuantity, " ");
+                   return temp;
+    		    }
+                catch (NumberFormatException nfe) {
+    			    throw new IllegalArgumentException("Got incorrect string " +
+    				    targetQuantity);
+    		    }
 		    }
-            catch (NumberFormatException nfe) {
-			    throw new IllegalArgumentException("Got incorrect string " +
-				    targetQuantity);
-		    }
-		}
     }
 
 
@@ -67,7 +59,7 @@ public class VowelSearchState implements SearchState {
         ArrayList<String> options = new ArrayList<String>();
 
         // iterate through the dictionary of possibilities
-        for (String element : ExpansionDictionary.getInstance().lookup(input) ) {
+        for (String element : ExpansionDictionary.getInstance().lookup(input)){
             options.add(element);
         }
         return options;
@@ -76,12 +68,15 @@ public class VowelSearchState implements SearchState {
 
     public double getActionCost(String action) {
         SmoothedBigramModel temp = SmoothedBigramModel.getInstance();
-        return temp.cost(input, prev);
+        if(index == 0){
 
+            return temp.cost(LangUtil.SENTENCE_BEGIN, action);
+        }
+        return temp.cost(action, prev);
     }
 
     public VowelSearchState applyAction(String action) {
-        return new VowelSearchState(action.length(), action, input);
+        return new VowelSearchState(index + 1, prev, action);
 
     }
 

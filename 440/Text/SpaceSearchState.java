@@ -3,15 +3,9 @@ import java.util.Collection;
 
 public class SpaceSearchState implements SearchState {
 
-
     final int       index;
     final String    input;
 
-    /**
-     * Constructor
-     * @param index     Current index at this state
-     * @param input     Passing constant input through
-     */
     private SpaceSearchState(int index, String input) {
     	this.input = input;
     	this.index = index;
@@ -35,10 +29,7 @@ public class SpaceSearchState implements SearchState {
     }
 
     public static class Builder extends SearchState.Builder {
-	/**
-	 * @param targetQuantity specification of the problem instance to solve
-	 * @return initial search state corresponding to this problem
-	 */
+
 		public SearchState makeInitialState(String targetQuantity)
 		    throws IllegalArgumentException {
 		    try {
