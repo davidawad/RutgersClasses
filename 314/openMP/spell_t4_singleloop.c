@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	unsigned int hash;
 	int misspelled;
 	// Set Number of threads to 4
-	omp_set_num_threads(4); 
+	omp_set_num_threads(4);
 	//
 	if (argc != 2) {
 		printf("Please give word to spell check\n");
@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	wl_size = get_num_words(wl);
-	
+
 	start = omp_get_wtime();
 	/* create the bit vector */
 	bv_size = 100000000;
@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
 		destroy_word_list(wl);
 		exit(EXIT_FAILURE);
 	}
-	
+
 	for (i = 0; i < wl_size; i++) {
 		for (j = 0; j < num_hf; j++) {
 			hash = hf[j] (get_word(wl, i));
@@ -66,6 +66,8 @@ int main(int argc, char *argv[])
 
 	/* do the spell checking */
 	misspelled = 0;
+	#pragma omp parallel for private(i,hash)
+
 	for (j = 0; j < num_hf; j++) {
 		hash = hf[j] (word);
 		hash %= bv_size;
