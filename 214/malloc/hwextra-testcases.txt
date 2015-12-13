@@ -1,0 +1,29 @@
+/*
+David Awad
+Mariam Tsilosani
+
+Test Cases
+*/
+
+
+Test 1: Normal malloc/Free run
+Inputs: Malloc for a string, then free it
+Expected Outputs: None
+
+Test 2: Double Free
+Inputs: Malloc for a string, free it, then free it again
+Expected Outputs: Error, Double Free
+
+Test 3: Saturation && Fragmentation
+Inputs: Malloc several very large chunks of memory until beyond capacity
+Expected Outputs: Error, no memory left
+
+Test 4: Pointers not returned from malloc
+Inputs: Malloc a pointer p, free p+1
+Expected Outputs: Error, not a pointer returned from malloc
+
+Test 5: Non-allocated memory
+Inputs: int* x = (int*) 5, free(x)
+Expected Outputs: Error, non-allocated memory
+
+
