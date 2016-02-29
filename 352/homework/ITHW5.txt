@@ -1,0 +1,19 @@
+Abanoub David Awad
+Homework 5
+
+1. Both UDP messages are sent to the same process on the same port. 
+It is up to the process receiving them to determine which messages are from who using IP addresses.
+
+2. persistent connections use separate sockets identified in part by the source IP address.
+The sources can then use the same port, but the payload goes to the correct corrseponding processes. 
+
+
+3. assisting in detecting packet loss. 
+
+
+4. 
+    a - causes a time out after which all the five packets were retransmitted.
+
+    b - no retransmission because Go-Back-N uses cumulative acknowledgements.
+
+    c - send window size is fixed to 5 so he 6th packet never sent. 
