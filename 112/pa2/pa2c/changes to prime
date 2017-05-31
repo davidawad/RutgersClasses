@@ -1,0 +1,6 @@
+there are a total of 5 errors in the prime.s assembly file.
+In line 6, there was an incorrect "setup". I changed %esp" to %ebp. 
+In line 8, Changed 12 to 8.
+in line 22 there is a testl but the jump afterwards wasn't conditional as it should've been. changed "jmp" to "jne". 
+In line 126 the setup is incorrect again, switched the %ebp and %esp. 
+In line 130 we are accessing argv[0] not argv [1], in order to correct for this added 4 instead of 0.     
