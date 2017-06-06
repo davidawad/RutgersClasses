@@ -1,0 +1,25 @@
+From 84a28875c1b4d2f0bd4a05dd1ab3c9b93ba529c5 Mon Sep 17 00:00:00 2001
+From: Nicholas Girardo <nag82@rm.cs.rutgers.edu>
+Date: Tue, 17 Mar 2015 19:36:47 -0400
+Subject: [PATCH 4/4] stage 3 finishing touches
+
+---
+ restorer.h |    2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/restorer.h b/restorer.h
+index abd4ed0..256839b 100644
+--- a/restorer.h
++++ b/restorer.h
+@@ -16,8 +16,6 @@ int __attribute__((used, section(".text\n\t"
+ 			".globl	restorer\n\t"
+ 			".type	restorer, @function\n\t"
+ 			"restorer:\n\t"
+-			//"movl	$7, %ecx\n\t"
+-			//"ret\n\t"
+ 			"movl	%esp, %ebp\n\t"
+ 			"popl	%edx\n\t"
+ 			"popl	%edx\n\t"
+-- 
+1.7.9.6
+

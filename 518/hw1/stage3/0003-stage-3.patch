@@ -1,0 +1,192 @@
+From 9d0e4879a3120ee63df128fd4ba49dc6e786cef7 Mon Sep 17 00:00:00 2001
+From: Nicholas Girardo <nag82@rm.cs.rutgers.edu>
+Date: Tue, 17 Mar 2015 19:35:56 -0400
+Subject: [PATCH 3/4] stage 3
+
+---
+ Makefile   |    4 +++-
+ proc.h     |    1 +
+ restorer.h |   29 ++++++++++++++++++++++++++++-
+ signal.h   |    2 +-
+ sysproc.c  |   11 +++++++----
+ trap.c     |   36 +++++++++++++++++++-----------------
+ user.h     |    2 +-
+ 7 files changed, 60 insertions(+), 25 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 67a9564..a9fc3e2 100644
+--- a/Makefile
++++ b/Makefile
+@@ -75,7 +75,7 @@ LD = $(TOOLPREFIX)ld
+ OBJCOPY = $(TOOLPREFIX)objcopy
+ OBJDUMP = $(TOOLPREFIX)objdump
+ #CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32 -Werror -fno-omit-frame-pointer
+-CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -fvar-tracking -fvar-tracking-assignments -O0 -g -Wall -MD -gdwarf-2 -m32 -Werror -fno-omit-frame-pointer
++CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -fvar-tracking -fvar-tracking-assignments -O0 -g -Wall -MD -gdwarf-2 -m32 -fno-omit-frame-pointer
+ CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
+ ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
+ # FreeBSD ld wants ``elf_i386_fbsd''
+@@ -187,6 +187,8 @@ UPROGS=\
+ 	_shutdown\
+ 	_stage1_test\
+ 	_stage2_timing\
++	_stage3_test\
++	_x\
+ 
+ fs.img: mkfs README $(UPROGS)
+ 	./mkfs fs.img README $(UPROGS)
+diff --git a/proc.h b/proc.h
+index 27a9c45..4e93ef3 100644
+--- a/proc.h
++++ b/proc.h
+@@ -66,6 +66,7 @@ struct proc {
+   struct file *ofile[NOFILE];  // Open files
+   struct inode *cwd;           // Current directory
+   char name[16];               // Process name (debugging)
++  int *restorer;			   // Janky special case signal handler
+   int *signal_handler_addr[32];// Signal handler addresses for each signal defined in signal.h respectively
+  // int *signal_handler_signum_addr[32]; //signal handler address for the signal which caused the signal
+ };
+diff --git a/restorer.h b/restorer.h
+index 76a1736..abd4ed0 100644
+--- a/restorer.h
++++ b/restorer.h
+@@ -1 +1,28 @@
+-// You must define an inline asm function here to solve stage3.
++	/*.file	"restorer.h"
++.LC0:
++	.string	"Test\n"
++.globl restorer
++	.type	restorer, @function
++restorer:
++	popl	%ebx
++	popl	%edx
++	popl	%edx
++	popl	%ecx
++	popl	%eax
++	ret
++*/
++void restorer(int);
++int __attribute__((used, section(".text\n\t"
++			".globl	restorer\n\t"
++			".type	restorer, @function\n\t"
++			"restorer:\n\t"
++			//"movl	$7, %ecx\n\t"
++			//"ret\n\t"
++			"movl	%esp, %ebp\n\t"
++			"popl	%edx\n\t"
++			"popl	%edx\n\t"
++			"popl	%ecx\n\t"
++			"popl	%eax\n\t"
++			"ret\n\t"
++			".size	restorer, .-restorer\n\t"
++			".section .data"))) restorera;
+diff --git a/signal.h b/signal.h
+index c9465ae..d2ede52 100644
+--- a/signal.h
++++ b/signal.h
+@@ -8,6 +8,6 @@
+ // as well as a sighandler_t type.
+ 
+ #define SIGFPE 0
+-typedef void (*signalhandler_t)(int);
++typedef void (*sighandler_t)(int);
+ 
+ #endif
+diff --git a/sysproc.c b/sysproc.c
+index 0b95857..fb83c66 100644
+--- a/sysproc.c
++++ b/sysproc.c
+@@ -109,10 +109,10 @@ sys_signal(void)
+ {
+   int signum;
+   int handler_addr;
+-  signum = -1;
++  signum = -2;
+   handler_addr = 0;
+ 
+-  if(argint(0,&signum) < 0) {
++  if(argint(0,&signum) < -1) {
+ 	  return -1;
+   }
+   if(argint(1, &handler_addr) < 0) {
+@@ -120,7 +120,10 @@ sys_signal(void)
+   }
+   //cprintf("inside sysproc.c -> signum = %d handler_addr = %x\n", signum, handler_addr);
+ 
+-  proc->signal_handler_addr[signum] = (int *)handler_addr;
+-//  proc->signal_handler_addr[signum] = &signum;
++  if(signum == -1) {
++	  proc->restorer = (int *) handler_addr;
++  } else {
++	  proc->signal_handler_addr[signum] = (int *)handler_addr;
++  }
+   return 0;
+ }
+diff --git a/trap.c b/trap.c
+index 68367d0..e8d56d5 100644
+--- a/trap.c
++++ b/trap.c
+@@ -78,27 +78,29 @@ trap(struct trapframe *tf)
+     lapiceoi();
+     break;
+   case T_DIVIDE:
+-	  ;
+-	 /*Switch to handler code*/
+-	 /*save the old instruction pointer so we can return to user code after handling divide error*/
+-	 uint old_eip = tf->eip;
++	;
++	/*Switch to handler code*/
++	/*save the old instruction pointer so we can return to user code after handling divide error*/
++	uint old_eip	= tf->eip +4;
++	uint old_esp	= tf->esp;
++	uint old_eax	= tf->eax;
++	uint old_edx	= tf->edx;
++	uint old_ecx	= tf->ecx;
+ 
++	uint restorer	= proc->restorer;
+ 
+-	 tf->eip = (uint)proc->signal_handler_addr[0]; /*set the instruction pointer to the address of the divide by 0 handler*/
++	asm volatile ("movl %1, (%%eax)\t #Put addr of restorer on stack\n"
++				"movl $0, 4(%%eax)\t #Put 0=SIGFPE on stack\n"
++				"movl %2, 8(%%eax)\t #Put edx on stack\n"
++				"movl %3, 12(%%eax)\t #Put ecx on stack\n"
++				"movl %4, 16(%%eax)\t #Put eax on stack\n"
++				"movl %5, 20(%%eax)\t #Put old eip on stack\n"
++				"addl $24, %%eax\t #Expand stack \n"
++				:  : "r" (old_esp), "r" (restorer), "r" (old_edx), "r" (old_ecx), "r" (old_eax), "r" (old_eip));
+ 
+-	 int *handler_param_ptr = (int *)(tf->esp-4); /*put the parameter for the handler on the stack (signum = 0 for divide by 0)*/
+-	 int index = 0;
+-	 *handler_param_ptr = index;
+-	// cprintf("INSIDE TRAP.C........*(proc->signal_handler_signum_addr[0] = %d\n", *(proc->signal_handler_signum_addr[0]));
++	tf->eip = proc->signal_handler_addr[0];
+ 
+-	 //*handler_param_ptr = *(proc->signal_handler_signum_addr[0]);
+-
+-	 int *return_addr_ptr = (int *)(tf->esp-8); /*return address of the handler is the address of the offending instruction, the old_eip*/
+-	 *return_addr_ptr = old_eip;
+-	// cprintf("INSIDE TRAP.C.........ADDRESS OF OFFENDING INSTRUCTION = %x\n", old_eip);
+-
+-	 tf->esp = tf->esp-8; /*move esp to the new top of the stack (we put activation record for handler on the stack)*/
+-	 break;
++	break;
+   //PAGEBREAK: 13
+   default:
+     if(proc == 0 || (tf->cs&3) == 0){
+diff --git a/user.h b/user.h
+index 68d0d4e..cd55e77 100644
+--- a/user.h
++++ b/user.h
+@@ -24,7 +24,7 @@ char* sbrk(int);
+ int sleep(int);
+ int uptime(void);
+ int halt(void);
+-int signal(int, void (*signalhandler_t)(int));
++int signal(int, void (*sighandler_t)(int));
+ 
+ // ulib.c
+ int stat(char*, struct stat*);
+-- 
+1.7.9.6
+
