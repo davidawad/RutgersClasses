@@ -1,0 +1,1039 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Javanotes 5.1.2, Section 8.5 -- Introduction to Threads</title>
+<link type="text/css" rel="stylesheet" href="../javanotes.css">
+</head>
+<body>
+<div align="right">
+<small>
+        [  <a href="s4.html">Previous Section</a> |
+           <a href="s6.html">Next Section</a> |
+           <a href="index.html">Chapter Index</a> | 
+        <a href="../index.html">Main Index</a> ]
+    </small>
+</div>
+<hr>
+<table class="subsections" vspace="8" hspace="8" cellpadding="5" border="2" align="right">
+<tr>
+<td>
+<div align="center">
+<b>Subsections</b>
+<hr>
+<small><a href="#robustness.4.1">Creating and Running Threads</a>
+<br>
+<a href="#robustness.4.2">Operations on Threads</a>
+<br>
+<a href="#robustness.4.3">Mutual Exclusion with "synchronized"</a>
+<br>
+<a href="#robustness.4.4">Wait and Notify</a>
+<br>
+<a href="#robustness.4.5">Volatile Variables</a>
+<br>
+</small>
+</div>
+</td>
+</tr>
+</table>
+<div class="content">
+<h3 class="section_title">Section 8.5</h3>
+<h2 class="section_title">Introduction to Threads</h2>
+<hr class="break">
+   
+
+<p>
+<span class="start"><big>L</big>ike people, computers</span> can <span class="newword">multitask</span>.  That
+is, they can be working on several different tasks at the same time.  A computer that
+has just a single central processing unit can't literally do two things at the same time,
+any more than a person can,
+but it can still switch its attention back and forth among several tasks.  Furthermore,
+it is increasingly common for computers to have more than one processing unit, and
+such computers can literally work on several tasks simultaneously.  It is likely that
+from now on, most of the increase in computing power will come from adding additional
+processors to computers rather than from increasing the speed of individual processors.
+To use the full
+power of these multiprocessing computers, a programmer must do <span class="newword">parallel
+programming</span>, which means writing a program as a set of several tasks that
+can be executed simultaneously.  Even on a single-processor computer, parallel programming
+techniques can be useful, since some problems can be tackled most naturally by breaking
+the solution into a set of simultaneous tasks that cooperate to solve the problem.</p>
+
+
+<p>In Java, a single task is called a <span class="newword">thread</span>.  The term "thread"
+refers to a "thread of control" or "thread of execution," meaning a sequence of instructions that are executed
+one after another -- the thread extends through time, connecting each instruction to
+the next.  In a multithreaded program, there can be many threads of control, weaving
+through time in parallel and forming the complete fabric of the program. (Ok, enough
+with the metaphor, already!)  Every Java program has at least one thread; when the Java 
+virtual machine runs your program, it creates a thread
+that is responsible for executing the <span class="code">main</span> routine of the program.
+This main thread can in turn create other threads that can continue even after
+the main thread has terminated.  In a GUI program, there is at least one additional
+thread, which is responsible for handling events and drawing components on the screen.
+This GUI thread is created when the first window is opened.  So in fact, you have
+already done parallel programming!  When a <span class="code">main</span> routine opens a window,
+both the main thread and the GUI thread can continue to run in parallel.  Of
+course, parallel programming can be used in much more interesting ways.</p>
+   
+
+<p>Unfortunately, parallel programming is even more difficult than ordinary,
+single-threaded programming.  When several threads are working together on a
+problem, a whole new category of errors is possible.  This just means that
+techniques for writing correct and robust programs are even more important for
+parallel programming than they are for normal programming.  (That's one excuse
+for having this section in this chapter -- another is that we will need threads
+at several points in future chapters, and I didn't have another place in the book where the
+topic fits more naturally.) Since threads are a difficult topic, 
+you will probably not fully understand everything
+in this section the first time through the material.  Your understanding should
+improve as you encounter more examples of threads in future sections.</p>
+   
+
+<hr class="break">
+<h3 class="subsection_title">
+<a name="robustness.4.1">8.5.1&nbsp;&nbsp;Creating and Running Threads</a>
+</h3>
+   
+
+<p>In Java, a thread is represented by an object belonging to the class
+<span class="code">java.lang.Thread</span> (or to a subclass of this class).  The purpose
+of a <span class="classname">Thread</span> object is to execute a single method.
+The method is executed in its own thread of control, which can run in parallel with
+other threads.  When the execution of the method is finished, either because the
+method terminates normally or because of an uncaught exception, the thread
+stops running.  Once this happens, there is no way to restart the thread or
+to use the same <span class="classname">Thread</span> object to start another thread.</p>
+
+
+<p>There are two ways to program a thread.  One is to create a subclass of
+<span class="classname">Thread</span> and to define the method <span class="code">public void run()</span>
+in the subclass.  This <span class="code">run()</span> method defines the task that will be
+performed by the thread; that is, when the thread is started, it is the <span class="code">run()</span>
+method that will be executed in the thread.  For example, here is a simple, and 
+rather useless, class that defines a thread that does nothing but print a message
+on standard output:</p>   
+
+
+<pre>public class NamedThread extends Thread {
+   private String name;  // The name of this thread.
+   public NamedThread(String name) {  // Constructor gives name to thread.
+      this.name = name;
+   }
+   public void run() {  // The run method prints a message to standard output.
+      System.out.println("Greetings from thread '" + name + "'!");
+   }
+}</pre>
+   
+
+<p>To use a <span class="classname">NamedThread</span>, you must of course create an object
+belonging to this class.  For example,</p>
+   
+
+<pre>NamedThread greetings = new NamedThread("Fred");</pre>
+   
+
+<p>However, creating the object does not automatically start
+the thread running.  To do that, you must call the <span class="code">start()</span> method in
+the thread object.  For the example, this would be done with the statement</p>
+
+
+<pre>greetings.start();</pre>
+   
+
+<p>The purpose of the <span class="code">start()</span> method is to create a new thread of
+control that will execute the <span class="classname">Thread</span> object's <span class="code">run()</span>
+method.  The new thread runs in parallel with the thread in which the <span class="code">start()</span>
+method was called, along with any other threads that already existed.  This means that
+the code in the <span class="code">run()</span> method will execute at the same time as the
+statements that follow the call to <span class="code">greetings.start()</span>.  Consider this
+code segment:</p>
+
+
+<pre>NamedThread greetings = new NamedThread("Fred");
+greetings.start();
+System.out.println("Thread has been started.");</pre>
+
+
+<p>After <span class="code">greetings.start()</span> is executed, there are two threads.
+One of them will print "Thread has been started." while the other one wants
+to print "Greetings from thread 'Fred'!".  It is important to note that
+<i>these messages can be printed in either order</i>.  The two threads run simultaneously
+and will compete for access to standard output, so that they can print their messages.
+Whichever thread happens to be the first to get access will be the first to
+print its message.  In a normal, single-threaded program, things happen in a
+definite, predictable order from beginning to end.  In a multi-threaded program,
+there is a fundamental indeterminacy.  You can't be sure what order things will
+happen in.  This indeterminacy is what makes parallel programming so difficult!</p>   
+   
+
+<p>Note that calling <span class="code">greetings.start()</span> is <b>very</b> different from calling
+<span class="code">greetings.run()</span>.  Calling <span class="code">greetings.run()</span> will execute
+the <span class="code">run()</span> method in the same thread, rather than creating a new thread.
+This means that all the work of the <span class="code">run()</span> will be done before the
+computer moves on to the statement that follows the call to <span class="code">greetings.run()</span>
+in the program.  There is no parallelism and no indeterminacy.</p>
+
+
+<hr class="break">
+   
+
+<p>I mentioned that there are two ways to program a thread.  The first way was to
+define a subclass of <span class="classname">Thread</span>.  The second is to define a
+class that implements the interface <span class="code">java.lang.Runnable</span>.  The
+<span class="classname">Runnable</span> interface defines a single method,
+<span class="code">public void run()</span>.  An object that implements the <span class="classname">Runnable</span> interface
+can be passed as a parameter to the constructor of an object of type <span class="classname">Thread</span>.
+When that thread's <span class="code">start</span> method is called, the thread will execute the
+<span class="code">run()</span> method in the <span class="classname">Runnable</span> object.  For example,
+as an alternative to the <span class="classname">NamedThread</span> class, we could define
+the class:</p>
+   
+
+<pre>public class NamedRunnable implements Runnable {
+   private String name;  // The name of this thread.
+   public NamedRunnable(String name) {  // Constructor gives name to object.
+      this.name = name;
+   }
+   public void run() {  // The run method prints a message to standard output.
+      System.out.println("Greetings from thread '" + name +"'!");
+   }
+}</pre>
+   
+
+<p>To use this version of the class, we would create a <span class="classname">NamedRunnable</span>
+object and use that object to create an object of type <span class="classname">Thread</span>:</p>
+
+
+<pre>NamedRunnable greetings = new NamedRunnable("Fred");
+Thread greetingsThread = new Thread(greetings);
+greetingsThread.start();</pre>
+   
+
+
+<p>Finally, I'll note that it is sometimes convenient to define a thread using an
+anonymous inner class (<a href="../c5/s7.html#OOP.7.3">Subsection&nbsp;5.7.3</a>).  For example:</p>
+
+
+<pre>Thread greetingsFromFred = new Thread() {
+   public void run() {
+      System.out.println("Greetings from Fred!");
+   }
+};
+greetingsFromFred.start();</pre>
+   
+
+<hr class="break">
+   
+
+<p>To help you understand how multiple threads are executed in parallel, we consider
+the sample program <span class="sourceref"><a href="../source/ThreadTest1.java">ThreadTest1.java</a></span>.  This program creates
+several threads.  Each thread performs exactly the same task.  The task is to count
+the number of integers less than 1000000 that are prime. (The particular task
+that is done is not important for our purposes
+here.)  On my computer, this task takes a little more than one second
+of processing time.  The threads that perform this task are defined by the
+following static nested class:</p>
+   
+
+<pre>/**
+ * When a thread belonging to this class is run it will count the
+ * number of primes between 2 and 1000000.  It will print the result
+ * to standard output, along with its ID number and the elapsed
+ * time between the start and the end of the computation.
+ */
+private static class CountPrimesThread extends Thread {
+   int id;  // An id number for this thread; specified in the constructor.
+   public CountPrimesThread(int id) {
+      this.id = id;
+   }
+   public void run() {
+      long startTime = System.currentTimeMillis();
+      int count = countPrimes(2,1000000); // Counts the primes.
+      long elapsedTime = System.currentTimeMillis() - startTime;
+      System.out.println("Thread " + id + " counted " + 
+            count + " primes in " + (elapsedTime/1000.0) + " seconds.");
+   }
+}</pre>
+
+
+<p>The main program asks the user how many threads to run, and then creates and starts
+the specified number of threads:</p>
+   
+
+<pre>public static void main(String[] args) {
+   int numberOfThreads = 0;
+   while (numberOfThreads &lt; 1 || numberOfThreads &gt; 25) {
+      System.out.print("How many threads do you want to use  (1 to 25) ?  ");
+      numberOfThreads = TextIO.getlnInt();
+      if (numberOfThreads &lt; 1 || numberOfThreads &gt; 25)
+         System.out.println("Please enter a number between 1 and 25 !");
+   }
+   System.out.println("\nCreating " + numberOfThreads 
+                                           + " prime counting threads...");
+   CountPrimesThread[] worker = new CountPrimesThread[numberOfThreads];
+   for (int i = 0; i &lt; numberOfThreads; i++)
+      worker[i] = new CountPrimesThread( i );
+   for (int i = 0; i &lt; numberOfThreads; i++)
+      worker[i].start();
+   System.out.println("Threads have been created and started.");
+}</pre>
+
+
+   
+
+
+<p>Here is an applet that simulates the program.  Try running the program for
+various numbers of threads.  In particular, you should at least 
+try it with one thread and with two threads:</p>
+   
+
+<p align="center">
+<applet code="ThreadTest1Console.class" width="600" height="300" archive="ThreadTest1Applet.jar" alt="Applet 'ThreadTest1Console' should be displayed here."></applet></p>
+
+ 
+   
+
+<p>When I ran the program with one thread, it took 1.18 seconds for my computer to do the
+computation.  When I ran it using six threads, the output was:</p>
+   
+
+<pre>Creating 6 prime counting threads...
+Threads have been created and started.
+Thread 1 counted 78498 primes in 6.706 seconds.
+Thread 4 counted 78498 primes in 6.693 seconds.
+Thread 0 counted 78498 primes in 6.838 seconds.
+Thread 2 counted 78498 primes in 6.825 seconds.
+Thread 3 counted 78498 primes in 6.893 seconds.
+Thread 5 counted 78498 primes in 6.859 seconds.</pre>
+   
+
+<p>The second line was printed immediately after the first. At this point, the main
+program has ended but the six threads continue to run.  After a pause of about seven
+seconds, all six threads completed at about the same time.  The order in which the
+threads complete is not the same as the order in which they were started, and
+the order is indeterminate.  That is, if the program is run again, the order
+in which the threads complete will probably be different.</p>
+   
+
+<p>On my computer, six threads take about six times longer than one thread.
+This is because my computer has only one processor.  Six threads, all doing the
+same task, take six times as much processing as one thread.  With only one
+processor to do the work, the total elapsed time for six threads is about six times
+longer than the time for one thread.  On a computer with two processors, 
+the computer can work on two tasks at the same time, and six threads might
+complete in as little as three times the time it takes for one thread.
+On a computer with six or more processors, six threads might take no more time
+than a single thread.  Because of overhead and other reasons, the actual speedup
+will probably be smaller than this analysis indicates, but on a multiprocessor
+machine, you should see a definite speedup.  What happens when you run the program
+on your own computer?  How many processors do you have?</p>
+
+
+<p>Whenever there are more threads to be run than there are processors
+to run them, the computer divides its attention among all the runnable
+threads by switching rapidly from one thread to another.  That is, each 
+processor runs one thread for a while then switches to another thread and 
+runs that one for a while, and so on.  Typically, these "context switches"
+occur about 100 times or more per second.  The result is that the
+computer makes progress on all the tasks, and it looks to the user as if
+all the tasks are being executed simultaneously.  This is why in the sample
+program, in which each thread has the same amount of work to do, all the
+threads complete at about the same time:  Over any time period longer than
+a fraction of a second, the computer's time is divided approximately equally
+among all the threads.</p>
+   
+
+<p>When you do parallel programming in order to spread the work among
+several processors, you might want to take into account the number of
+available processors.  You might, for example, want to create one
+thread for each processor.  In Java, you can find out
+the number of processors by calling the function</p>
+
+
+<pre>Runtime.getRuntime().availableProcessors()</pre>
+   
+
+<p>which returns an <span class="ptype">int</span> giving the number of processors that
+are available to the Java Virtual Machine.  In some cases, this might be
+less than the actual number of processors in the computer.</p>
+      
+
+   
+
+<hr class="break">
+<h3 class="subsection_title">
+<a name="robustness.4.2">8.5.2&nbsp;&nbsp;Operations on Threads</a>
+</h3>
+   
+
+<p>The <span class="classname">Thread</span> class includes several useful methods
+in addition to the <span class="code">start()</span> method that was discussed above.
+I will mention just a few of them.</p>
+
+
+<p>If <span class="code">thrd</span> is an object of type <span class="classname">Thread</span>,
+then the <span class="ptype">boolean</span>-valued function <span class="code">thrd.isAlive()</span>
+can be used to test whether or not the thread is alive.  A thread is "alive"
+between the time it is started and the time when it terminates.  After the
+thread has terminated it is said to be "dead".  (The rather gruesome metaphor
+is also used when we refer to "killing" or "aborting" a thread.)</p>
+   
+
+<p>The static method <span class="code">Thread.sleep(milliseconds)</span> causes the
+thread that executes this method to "sleep" for the specified number of milliseconds.
+A sleeping thread is still alive, but it is not running.  While a thread is sleeping,
+the computer will work on any other runnable threads (or on other programs).
+<span class="code">Thread.sleep()</span> can be used to insert a pause in the execution of a
+thread.  The <span class="code">sleep</span> method can throw an exception of type
+<span class="classname">InterruptedException</span>, which is an exception class that
+requires mandatory exception handling (see <a href="../c8/s3.html#robustness.3.4">Subsection&nbsp;8.3.4</a>).
+In practice, this means that the <span class="code">sleep</span> method is usually used in a <span class="code">try..catch</span>
+statement that catches the potential <span class="classname">InterruptedException</span>:</p>
+   
+
+<pre>try {
+   Thread.sleep(lengthOfPause);
+}
+catch (InterruptedException e) {
+}</pre>
+   
+
+<p>One thread can interrupt another thread to wake it up when it is sleeping or
+paused for some other reason.  A <span class="classname">Thread</span>, <span class="code">thrd</span>,
+can be interrupted by calling its method <span class="code">thrd.interrupt()</span>, but you
+are not likely to do this until you start writing rather advanced applications, and
+you are not likely to need to do anything in response to an <span class="classname">InterruptedException</span>
+(except to <span class="code">catch</span> it).  It's unfortunate that you have to worry about it
+at all, but that's the way that mandatory exception handling works.</p>
+   
+
+<p>Sometimes, it's necessary for one thread to wait for anther thread to die.
+This is done with the <span class="code">join()</span> method from the <span class="classname">Thread</span> class.
+Suppose that <span class="code">thrd</span> is a <span class="classname">Thread</span>.  Then, if another
+thread calls <span class="code">thrd.join()</span>, that other thread will go to sleep until
+<span class="code">thrd</span> terminates.  If <span class="code">thrd</span> is already dead when <span class="code">thrd.join()</span>
+is called, then it simply has no effect -- the thread that called <span class="code">thrd.join()</span>
+proceeds immediately.  The method <span class="code">join()</span> can throw an <span class="code">InterruptedException</span>,
+which must be handled.
+As an example, the following code starts several threads, waits for them all to terminate,
+and then outputs the elapsed time:</p>
+
+
+<pre>CountPrimesThread[] worker = new CountPrimesThread[numberOfThreads];
+long startTime = System.currentTimeMillis();
+for (int i = 0; i &lt; numberOfThreads; i++) {
+   worker[i] = new CountPrimesThread();
+   worker[i].start();
+}
+for (int i = 0; i &lt; numberOfThreads; i++) {
+   try {
+      worker[i].join();  // Sleep until worker[i] has terminated.
+   }
+   catch (InterruptedException e) {
+   }
+}
+// At this point, all the worker threads have terminated.
+long elapsedTime = System.currentTimeMillis() - startTime;
+System.out.println("Elapsed time:  " + (elapsedTime/1000.0) + " seconds.");</pre>
+   
+
+<p>An observant reader will note that this code assumes that no <span class="classname">InterruptedException</span>
+will occur.  To be absolutely sure that the thread <span class="code">worker[i]</span> has terminated in an environment
+where <span class="classname">InterruptedExceptions</span> are possible, you would have to do something like:</p>
+   
+
+<pre>while (worker[i].isAlive()) {
+   try {
+      worker[i].join();
+   }
+   catch (InterruptedException e) { 
+   }
+}</pre>
+   
+
+   
+
+<hr class="break">
+<h3 class="subsection_title">
+<a name="robustness.4.3">8.5.3&nbsp;&nbsp;Mutual Exclusion with "synchronized"</a>
+</h3>
+   
+
+<p>Programming several threads to carry out independent tasks is easy.
+The real difficulty arises when threads have to interact in some way.
+One way that threads interact is by sharing resources.
+When two threads need access to the same resource, such as a variable
+or a window on the screen, some care must be taken that they don't try to
+use the same resource at the same time.  Otherwise, the situation could
+be something like this:  Imagine several cooks sharing the use of just one measuring cup,
+and imagine that Cook&nbsp;A fills the measuring cup with milk, only to
+have Cook&nbsp;B grab the cup before Cook&nbsp;A has a chance to empty the
+milk into his bowl.  There has to be some way for Cook&nbsp;A to claim
+exclusive rights to the cup while he performs the two operations:
+Add-Milk-To-Cup and Empty-Cup-Into-Bowl.</p>
+   
+
+<p>Something similar happens with threads, even with something as simple
+as adding one to a counter.  The statement</p>
+
+
+<pre>count = count + 1;</pre>
+   
+
+<p>is actually a sequence of three operations:</p>
+   
+
+<pre>Step 1.  Get the value of count
+Step 2.  Add 1 to the value.
+Step 3.  Store the new value in count</pre>
+   
+
+<p>Suppose that several threads perform these three steps.  Remember that it's possible for
+two threads to run at the same time, and even if there is only one processor, it's
+possible for that processor to switch from one thread to another at any point.
+Suppose that while one thread is between Step&nbsp;2 and Step&nbsp;3, another thread
+starts executing the same sequence of steps.  Since the first thread has not
+yet stored the new value in <span class="code">count</span>, the second thread reads the
+<b>old</b> value of <span class="code">count</span> and adds one to that old value.  After
+both threads have executed Step&nbsp;3, the value of <span class="code">count</span> has gone up 
+only by 1 instead of by&nbsp;2!  This type of problem is called a
+<span class="newword">race condition</span>.  This occurs when one thread is in the middle
+of a multi-step operation, and another thread changes some value or condition
+that the first thread is depending upon.  (The first thread is "in a race" to
+complete all the steps before it is interrupted by another thread.)  Another
+example of a race condition can occur in an <span class="code">if</span> statement. 
+Suppose the following statement, which is meant to avoid a division-by-zero error
+is executed by a thread:</p>
+   
+
+<pre>if ( A != 0 )
+   B = C / A;</pre>
+
+
+<p>If the variable <span class="code">A</span> is shared by several threads, and if nothing is
+done to guard against the race condition, then it is possible that a second thread
+will change the value of <span class="code">A</span> to zero between the time that the first
+thread checks the condition <span class="code">A&nbsp;!=&nbsp;0</span> and the time that 
+it does the division.  This means that the thread ends up dividing by zero,
+even though it just checked that <span class="code">A</span> was not zero!</p>
+   
+
+<p>To fix the problem of race conditions, there has to be some way for a thread
+to get <span class="newword">exclusive access</span> to a shared resource.  This is not a trivial
+thing to implement, but Java provides a high level and relatively easy-to-use approach
+to exclusive access.  It's done with <span class="newword">synchronized methods</span> and with the
+<span class="newword">synchronized statement</span>.  These are used to protect shared
+resources by making sure that only one thread at a time will try to access the resource.
+Synchronization in Java actually provides only <span class="newword">mutual exclusion</span>,
+which means that exclusive access to a resource is only guaranteed if <b>every</b> thread
+that needs access to that resource uses synchronization.  Synchronization is like a cook
+leaving a note that says, "I'm using the measuring cup."  This will get the cook exclusive
+access to the cup -- but only if all the cooks agree to check the note before
+trying to grab the cup.</p>
+   
+
+<p>Because this is a difficult topic, I will start with a simple example.  Suppose that
+we want to avoid the race condition that occurs when several threads all want to
+add 1 to a counter.  We can do this by defining a class to represent the counter
+and by using synchronized methods in that class:</p>
+   
+
+<pre>public class ThreadSafeCounter {
+   
+   private int count = 0;  // The value of the counter.
+   
+   synchronized public void increment() {
+      count = count + 1;
+   }
+   
+   synchronized public int getValue() {
+      return count;
+   }
+   
+}</pre>
+   
+
+<p>If <span class="code">tsc</span> is of type <span class="classname">ThreadSafeCounter</span>, then
+any thread can call <span class="code">tsc.increment()</span> to add 1 to the counter in a completely
+safe way.  The fact that <span class="code">tsc.increment()</span> is <span class="code">synchronized</span> means
+that only one thread can be in this method at a time; once a thread starts executing
+this method, it is guaranteed that it will finish executing it without having
+another thread change the value of <span class="code">tsc.count</span> in the meantime.  There is
+no possibility of a race condition.
+Note that the guarantee depends on the fact that <span class="code">count</span> is a <span class="code">private</span>
+variable.  This forces all access to <span class="code">tsc.count</span> to occur in the
+<span class="code">synchronized</span> methods that are provided by the class. 
+If <span class="code">count</span> were <span class="code">public</span>, it would be possible
+for a thread to bypass the synchronization by, for example, saying <span class="code">tsc.count++</span>.
+This could change the value of <span class="code">count</span> while another thread is in the
+middle of the <span class="code">tsc.increment()</span>.  Synchronization does <b>not</b> guarantee
+exclusive access; it only guarantees <b>mutual exclusion</b> among all the threads that are
+properly synchronized.</p>
+  
+
+<p>The <span class="classname">ThreadSafeCounter</span> class does not prevent all possible
+race conditions that might arise when using a counter.  Consider the <span class="code">if</span>
+statement:</p>
+
+
+<pre>if ( tsc.getValue() == 0 )
+   doSomething();</pre>
+   
+
+<p>where <span class="code">doSomething()</span> is some method that requires the value of the counter
+to be zero.  There is still a race condition here, which occurs if a second thread
+increments the counter between the time the first thread tests <span class="code">tsc.getValue()&nbsp;==&nbsp;0</span>
+and the time it executes <span class="code">doSomething()</span>.  The first thread needs exclusive
+access to the counter during the execution of the whole <span class="code">if</span> statement.
+(The synchronization in the <span class="classname">ThreadSafeCounter</span> class only gives it
+exclusive access during the time it is evaluating <span class="code">tsc.getValue()</span>.)
+We can solve the race condition by putting the <span class="code">if</span> statement in a <span class="code">synchronized</span>
+statement:</p>
+   
+
+<pre>synchronized(tsc) {
+   if ( tsc.getValue() == 0 )
+      doSomething();
+}</pre>
+
+
+<p>Note that the <span class="code">synchronized</span> statement takes an object -- <span class="code">tsc</span> in
+this case -- as a kind of parameter.  The syntax of the <span class="code">synchronized</span> statement
+is:</p>
+   
+
+<pre>synchronized( <span class="bnf">object</span> ) {
+   <span class="bnf">statements</span>
+}</pre>
+   
+
+<p>In Java, mutual exclusion is always associated with an object; we say that the
+synchronization is "on" that object.  For example, the <span class="code">if</span> statement above
+is "synchronized on <span class="code">tsc</span>."  A synchronized instance method, such as those in the
+class <span class="classname">ThreadSafeCounter</span>, is synchronized on the object that
+contains the instance method.  In fact, adding the <span class="code">synchronized</span> modifier
+to the definition of an instance method is pretty much equivalent to putting the body
+of the method in a <span class="code">synchronized</span> statement,
+<span class="code">synchronized(this)&nbsp;{...}</span>.  It is also possible to have
+synchronized static methods; a synchronized static method is synchronized on
+a special class object that represents the class that contains the static method.</p>
+   
+
+<p>The real rule of synchronization in Java is:  <b>Two threads cannot be
+synchronized on the same object at the same time</b>; that is, they cannot simultaneously
+be executing code segments that are synchronized on that object.  If one thread is synchronized
+on an object, and a second thread tries to synchronize on the same object,
+the second thread is forced to wait until the first thread has finished with the
+object.  This is implemented using something called a <span class="newword">lock</span>.
+Every object has a lock, and that lock can be "held" by only one
+thread at a time.  To enter a synchronized statement or synchronized method,
+a thread must obtain the associated object's lock.  If the lock is available,
+then the thread obtains the lock and immediately begins executing the synchronized
+code.  It releases the lock after it finishes executing the synchronized code.
+If Thread&nbsp;A tries to obtain a lock that is already held by Thread&nbsp;B,
+then Thread&nbsp;A has to wait until Thread&nbsp;B releases the lock.  In fact,
+Thread&nbsp;A will go to sleep, and will not be awoken until the lock becomes
+available.</p>
+
+
+<hr class="break">
+
+
+<p>As a simple example of shared resources, we return to the prime-counting
+problem.  Suppose that we want to count all the primes in a given range of
+integers, and suppose that we want to divide the work up among several
+threads.  Each thread will be assigned part of the range of integers
+and will count the primes in its assigned range.  At the end of its 
+computation, the thread has to add its count to the overall total number of primes found.
+The variable that represents the total is shared by all the threads.
+If each thread just says
+</p>
+   
+
+<pre>total = total + count;</pre>
+   
+
+<p>then there is a (small) chance that two threads will try to do this
+at the same time and that the final total will be wrong.  To prevent this
+race condition, access to <span class="code">total</span> has to be synchronized. My
+program uses a synchronized method to add the counts to the total:</p>
+   
+
+<pre>synchronized private static void addToTotal(int x) {
+   total = total + x;
+   System.out.println(total + " primes found so far.");
+}</pre>
+   
+
+<p>The source code for the program can be found in <span class="sourceref"><a href="../source/ThreadTest2.java">ThreadTest2.java</a></span>.
+This program counts the primes in the range 3000001 to 6000000.  (The numbers are
+rather arbitrary.)  The <span class="code">main()</span> routine in this program creates between
+1 and 5 threads and assigns part of the job to each thread.  It then waits for
+all the threads to finish, using the <span class="code">join()</span> method as described above,
+and reports the total elapsed time.  If you run the program on a multiprocessor
+computer, it should take less time for the program to run when you use more than
+one thread.  Here is an applet that simulates the program:</p>
+
+   
+
+
+<p align="center">
+<applet code="ThreadTest2Console.class" width="600" height="300" archive="ThreadTest2Applet.jar" alt="Applet 'ThreadTest2Console' should be displayed here."></applet></p>
+
+
+   
+
+<hr class="break">
+   
+
+<p>Synchronization can help to prevent race conditions, but it introduces the
+possibility of another type of error, <span class="newword">deadlock</span>.
+A deadlock occurs when a thread waits forever for a resource that it
+will never get.  In the kitchen, a deadlock might occur if two very
+simple-minded cooks both want to measure a cup of milk at the same
+time.  The first cook grabs the measuring cup, while the second cook grabs
+the milk.  The first cook needs the milk, but can't find it because the
+second cook has it.  The second cook needs the measuring cup, but can't
+find it because the first cook has it.  Neither cook can continue and
+nothing more gets done.  This is deadlock.  Exactly the same thing
+can happen in a program, for example if there are two threads (like the two cooks)
+both of which need to obtain locks on the same two objects (like the milk and
+the measuring cup) before they can proceed.  Deadlocks can easily occur,
+unless great care is taken to avoid them.  Fortunately, we won't be
+looking at any examples that require locks on more than one object, so
+we will avoid that source of deadlock.</p>
+
+
+     
+
+   
+
+<hr class="break">
+<h3 class="subsection_title">
+<a name="robustness.4.4">8.5.4&nbsp;&nbsp;Wait and Notify</a>
+</h3>
+   
+
+<p>Threads can interact with each other in other ways besides sharing resources.
+For example, one thread might produce some sort of result that is needed by
+another thread.  This imposes some restriction on the order in which the threads
+can do their computations.  If the second thread gets to the point where it
+needs the result from the first thread, it might have to stop and wait for
+the result to be produced.  Since the second thread can't continue, it might
+as well go to sleep.  But then there has to be some way to notify the second thread
+when the result is ready, so that it can wake up and continue its computation.
+Java, of course, has a way to do this kind of waiting and notification:  It has
+<span class="code">wait()</span> and <span class="code">notify()</span> methods that are defined as
+instance methods in class <span class="classname">Object</span> and so can be used
+with any object.  The reason why <span class="code">wait()</span> and
+<span class="code">notify()</span> should be associated with objects is not obvious, so
+don't worry about it at this point.  It does, at least, make it possible
+to direct different notifications to a different recipients, depending on
+which object's <span class="code">notify()</span> method is called.</p>
+   
+
+<p>The general idea is that when a thread calls a <span class="code">wait()</span> method
+in some object, that thread goes to sleep until the <span class="code">notify()</span> method
+in the same object is called.  It will have to be called, obviously, by
+another thread, since the thread that called <span class="code">wait()</span> is sleeping.
+A typical pattern is that Thread&nbsp;A calls <span class="code">wait()</span> when it
+needs a result from Thread&nbsp;B, but that result is not yet available.  When Thread&nbsp;B
+has the result ready, it calls <span class="code">notify()</span>, which will wake
+Thread&nbsp;A up so that it can use the result.  It is not an error to call
+<span class="code">notify()</span> when no one is waiting; it just has no effect.  To implement this,
+Thread&nbsp;A will execute code similar to the following, where <span class="code">obj</span> is
+some object:</p>
+   
+
+<pre>if ( resultIsAvailable() == false )
+   obj.wait();  // wait for noification that the result is available
+useTheResult();</pre>
+   
+
+<p>while Thread&nbsp;B does something like:</p>
+   
+
+<pre>generateTheResult();
+obj.notify();  // send out a notification that the result is available</pre>
+   
+
+<p>Now, there is a really nasty race condition in this code.  The two threads
+might execute their code in the following order:</p>
+   
+
+<pre>1.  Thread A checks resultIsAvailable() and finds that the result is not ready,
+        so it decides to execute the obj.wait() statement, but before it does,
+2.  Thread B finishes generating the result and calls obj.notify()
+3.  Thread A calls obj.wait() to wait for notification that the result is ready.</pre>
+   
+
+<p>In Step 3, Thread A is waiting for a notification that will never come,
+because <span class="code">notify()</span> has already been called.  This is a kind of
+deadlock that can leave Thread&nbsp;A waiting forever.  Obviously, we need
+some kind of synchronization.  The solution is to enclose both Thread&nbsp;A's
+code and Thread&nbsp;B's code in <span class="code">synchronized</span> statements, and
+it is very natural to synchronize on the same object, <span class="code">obj</span>,
+that is used for the calls to <span class="code">wait()</span> and <span class="code">notify()</span>.
+In fact, since synchronization is almost always needed when
+<span class="code">wait()</span> and <span class="code">notify()</span> are used, Java makes
+it an absolute requirement.  In Java, a thread can legally call
+<span class="code">obj.wait()</span> or <span class="code">obj.notify()</span>
+only if that thread holds the synchronization lock
+associated with the object <span class="code">obj</span>.  If it does not hold that
+lock, then an exception is thrown.  (The exception is of type
+<span class="classname">IllegalMonitorStateException</span>, which does not
+require mandatory handling and which is typically not caught.)
+One further complication is that the <span class="code">wait()</span> method can throw
+an <span class="classname">InterruptedException</span> and so should be called in
+a <span class="code">try</span> statement that handles the exception.</p>
+   
+
+<p>To make things more definite, lets consider a <span class="newword">producer/consumer</span>
+problem where one thread produces a result that is consumed by another thread.
+Assume that there is a shared variable named <span class="code">sharedResult</span> that is
+used to transfer the result from the producer to the consumer.  When the
+result is ready, the producer sets the variable to a non-null value.
+The producer can check whether the result is ready by testing whether
+the value of <span class="code">sharedResult</span> is null.  We will use a variable named
+<span class="code">lock</span> for synchronization.  The code for the producer thread
+could have the form:</p>
+   
+
+<pre>makeResult = generateTheResult();  // Not synchronized!
+synchronized(lock) {
+   sharedResult = makeResult;
+   lock.notify();
+}</pre>
+
+
+<p>while the consumer would execute code such as:</p>
+   
+
+<pre>synchronized(lock) {
+   while ( sharedResult == null ) {
+      try {
+         lock.wait();
+      }
+      catch (InterruptedException e) {
+      }
+   }
+   useResult = sharedResult;
+}
+useTheResult(useResult);  // Not synchronized!</pre>
+   
+
+<p>The calls to <span class="code">generateTheResult()</span> and <span class="code">useTheResult()</span>
+are not synchronized, which allows them to run in parallel with other threads that
+might also synchronize on <span class="code">lock</span>.  Since <span class="code">sharedResult</span>
+is a shared variable, all references to <span class="code">sharedResult</span> should be synchronized,
+so the references to <span class="code">sharedResult</span> must be inside the <span class="code">synchronized</span> statements.
+The goal is to do as little as possible (but not less) in synchronized code segments.</p>
+
+
+<p>If you are uncommonly alert, you might notice something funny:  <span class="code">lock.wait()</span>
+does not finish until <span class="code">lock.notify()</span> is executed, but since both of these
+methods are called in <span class="code">synchronized</span> statements that synchronize on the same
+object, shouldn't it be impossible for both methods to be running at the same time?
+In fact, <span class="code">lock.wait()</span> is a special case:  When the consumer thread calls
+<span class="code">lock.wait()</span>, it gives up the lock that it holds on the synchronization object, <span class="code">lock</span>.
+This gives the producer thread a chance to execute the <span class="code">synchronized(lock)</span> block 
+that contains the <span class="code">lock.notify()</span> statement.  After the producer thread
+exits from this block, the lock is returned to the consumer thread so that it can continue.</p>
+   
+
+<p>The producer/consumer pattern can be generalized and made more useful without making
+it any more complex.  In the general case, multiple results are produced by one or
+more producer threads and are consumed by one or more consumer threads.  Instead of
+having just one <span class="code">sharedResult</span> object, we keep a list of objects that have
+been produced but not yet consumed. Producer threads add objects to this list.
+Consumer threads remove objects from this list.  The only time when a thread is
+blocked from running is when a consumer thread tries to get a result from the list,
+and no results are available.  It is easy to encapsulate the whole producer/consumer
+pattern in a class (where I assume that there is a class <span class="classname">ResultType</span>
+that represents the result objects):</p>
+ 
+   
+
+<pre>/**
+ * An object of type ProducerConsumer represents a list of results
+ * that are available for processing.  Results are added to the list
+ * by calling the produce method and are removed by calling consume.
+ * If no result is available when consume is called, the method will
+ * not return until a result becomes available.
+ */
+private static class ProducerConsumer {
+
+   private ArrayList&lt;ResultType&gt; items = new ArrayList&lt;ResultType&gt;();
+        // This ArrayList holds results that have been produced and are waiting
+        // to be consumed.  See <a href="../c7/s3.html#arrays.3.3">Subsection&nbsp;7.3.3</a> for information on ArrayList.
+
+   public void produce(ResultType item) {
+      synchronized(items) {
+         items.add(item); // Add item to the list of results.
+         items.notify();  // Notify any thread waiting in consume() method.
+      }
+   }
+
+   public ResultType consume() {
+      ResultType item;
+      synchronized(items) {
+         // If no results are available, wait for notification from produce().
+         while (items.size() == 0) {
+            try {
+               items.wait();
+            }
+            catch (InterruptedException e) {
+            }
+         }
+         // At this point, we know that at least one result is available.
+         item = items.remove(0);
+      }
+      return item;
+   }
+
+}</pre>
+   
+
+<p>For an example of a program that uses a <span class="classname">ProducerConsumer</span> class,
+see <span class="sourceref"><a href="../source/ThreadTest3.java">ThreadTest3.java</a></span>.  This program performs the same task as
+<span class="sourceref"><a href="../source/ThreadTest2.java">ThreadTest2.java</a></span>, but the threads communicate using the
+producer/consumer pattern instead of with a shared variable.</p>
+   
+
+<p>Going back to our kitchen analogy for a moment, consider a restaurant with several
+waiters and several cooks.  If we look at the flow of customer orders into the kitchen,
+the waiters "produce" the orders and leave them in a pile.  The orders are "consumed"
+by the cooks; whenever a cook needs a new order to work on, she picks one up from the
+pile.  The pile of orders, or course, plays the role of the list of result objects in the
+producer/consumer pattern.  Note that the only time that a cook has to wait is when
+she needs a new order to work on, and there are no orders in the pile.  The cook must
+wait until one of the waiters places an order in the pile.  We can complete the analogy
+by imagining that the waiter rings a bell when he places the order in the pile -- ringing
+the bell is like calling the <span class="code">notify()</span> method to notify the cooks that
+an order is available.</p>
+   
+
+<p>A final note on <span class="code">notify</span>:  It is possible for several threads to
+be waiting for notification.  A call to <span class="code">obj.notify()</span> will wake only one
+of the threads that is waiting on <span class="code">obj</span>.  If you want to wake all threads
+that are waiting on <span class="code">obj</span>, you can call <span class="code">obj.notifyAll()</span>.  And
+a final note on <span class="code">wait</span>:  There is another version of <span class="code">wait()</span>
+that takes a number of milliseconds as a parameter.  A thread that calls <span class="code">obj.wait(milliseconds)</span>
+will wait only up to the specified number of milliseconds for a notification.  If a notification
+doesn't occur during that period, the thread will wake up and continue without the notification.
+In practice, this feature is most often used to let a waiting thread wake periodically while it
+is waiting in order to perform some periodic task, such as causing a message "Waiting for
+computation to finish" to blink.</p>
+   
+
+   
+
+
+<hr class="break">
+<h3 class="subsection_title">
+<a name="robustness.4.5">8.5.5&nbsp;&nbsp;Volatile Variables</a>
+</h3>
+
+
+<p>And a final note on communication among threads:  In general, threads communicate
+by sharing variables and accessing those variables in synchronized methods or
+synchronized statements.  However, synchronization is fairly expensive computationally,
+and excessive use of it should be avoided.  So in some cases, it can make sense for
+threads to refer to shared variables without synchronizing their access to those
+variables.</p>
+   
+
+<p>However, a subtle problem arises when the value of a shared variable is set is one
+thread and used in another.  Because of the way that threads are implemented in Java,
+the second thread might not see the changed value of the variable immediately.  That is,
+it is possible that a thread will continue to see the <b>old</b> value of
+the shared variable for some time after the value of the variable has been changed
+by another thread. This is because threads are allowed to <span class="newword">cache</span> shared data.
+That is, each thread can keep its own local copy of the shared data.  When one thread
+changes the value of a shared variable, the local copies in the caches of other threads
+are not immediately changed, so the other threads continue to see the old value.</p>
+
+
+<p>When a synchronized method or statement is entered, threads are forced to update
+their caches to the most current values of the variables in the cache.  So, using shared
+variables in synchronized code is always safe.</p>
+   
+
+<p>It is still possible to use a shared variable <b>outside</b> of synchronized code,
+but in that case, the variable must be declared to be <span class="newword">volatile</span>.
+The <span class="code">volatile</span> keyword is a modifier that can be added to a variable
+declaration, as in</p>
+   
+
+<pre>private volatile int count;</pre>
+
+
+<p>If a variable is declared to be <span class="code">volatile</span>, no thread will keep
+a local copy of that variable in its cache.  Instead, the thread will always use
+the official, main copy of the variable.  This means that any change made to
+the variable will immediately be available to all threads.  This makes it safe
+for threads to refer to <span class="code">volatile</span> shared variables even outside of synchronized code.
+(Remember, though, that synchronization is still the only way to prevent
+race conditions.)</p>
+   
+
+<p>When the <span class="code">volatile</span> modifier is applied to an object variable,
+only the variable itself is declared to be volatile, not the contents of the
+object that the variable points to.  For this reason, <span class="code">volatile</span> is
+generally only used for variables of simple types such as primitive types
+and enumerated types.</p>
+   
+
+<p>A typical example of using volatile variables is to send a signal from
+one thread to another that tells the second thread to terminate.  The two threads
+would share a variable</p>
+   
+
+<pre>volatile boolean terminate = false;</pre>
+   
+
+<p>The run method of the second thread would check the value of <span class="code">terminate</span>
+frequently and end when the value of <span class="code">terminate</span> becomes true:</p>
+   
+
+<pre>public void run() {
+   while (true) {
+      if (terminate)
+         return;
+      .
+      .  // Do some work
+      .
+   }
+}</pre>
+   
+
+<p>This thread will run until some other thread sets the value of <span class="code">terminate</span>
+to true.  Something like this is really the only clean way for one thread to cause
+another thread to die.</p>
+   
+
+<p>(By the way, you might be wondering why threads should use local data caches in the
+first place, since it seems to complicate things unnecessarily.  Caching is allowed because
+of the structure of multiprocessing computers.   In many multiprocessing computers,
+each processor has some local memory that is directly connected to the processor.
+A thread's cache is stored in the local memory of the processor on which the thread is running.
+Access to this local memory is much faster than access to other memory, so it
+is more efficient for a thread to use a local copy of a shared variable rather
+than some "master copy" that is stored in non-local memory.)</p>
+
+
+   
+
+
+</div>
+<hr>
+<div align="right">
+<small>
+        [  <a href="s4.html">Previous Section</a> |
+           <a href="s6.html">Next Section</a> |
+           <a href="index.html">Chapter Index</a> | 
+        <a href="../index.html">Main Index</a> ]
+    </small>
+</div>
+</body>
+</html>

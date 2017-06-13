@@ -1,0 +1,266 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Javanotes 5.1.2, Section 8.4 -- Assertions</title>
+<link type="text/css" rel="stylesheet" href="../javanotes.css">
+</head>
+<body>
+<div align="right">
+<small>
+        [  <a href="s3.html">Previous Section</a> |
+           <a href="s5.html">Next Section</a> |
+           <a href="index.html">Chapter Index</a> | 
+        <a href="../index.html">Main Index</a> ]
+    </small>
+</div>
+<hr>
+<div class="content">
+<h3 class="section_title">Section 8.4</h3>
+<h2 class="section_title">Assertions</h2>
+<hr class="break">
+
+
+<p>
+<span class="start"><big>I</big>n this short section</span>, we look at
+<span class="newword">assertions</span>, another feature of the Java programming
+language that can be used to aid in the development of correct and
+robust programs.</p>
+   
+
+<p>Recall that a precondition is a condition that must be true at a certain
+point in a program, for the execution of the program to continue correctly from
+that point.  In the case where there is a chance that the precondition might not
+be satisfied -- for example, if it depends on input from the user -- then
+it's a good idea to insert an <span class="code">if</span> statement to test it.
+But then the question arises, What should be done if the precondition does not
+hold? One option is to throw an exception. This will terminate the program,
+unless the exception is caught and handled elsewhere in the program.</p>
+   
+
+<p>In many cases, of course, instead of using an <span class="code">if</span> statement to 
+<i>test</i> whether a precondition holds, a programmer tries to write the program
+in a way that will <i>guarantee</i> that the precondition holds.  In that case,
+the test should not be necessary, and the <span class="code">if</span> statement can be
+avoided.  The problem is that programmers are not perfect.  In spite of the programmer's
+intention, the program might contain a bug that screws up the precondition.
+So maybe it's a good idea to check the precondition -- at least during the
+debugging phase of program development.</p>
+
+
+<p>Similarly, a postcondition is a condition that is true at a certain point in the program 
+as a consequence of the code that has been executed before that point.  Assuming
+that the code is correctly written, a postcondition is guaranteed to be true,
+but here again testing whether a desired postcondition is <b>actually</b> true
+is a way of checking for a bug that might have screwed up the postcondition.
+This is something that might be desirable during debugging.</p>
+   
+
+<p>The programming languages C and C++ have always had a facility for adding
+what are called <span class="newword">assertions</span> to a program. These
+assertions take the form "<span class="code">assert(</span><span class="bnf">condition</span><span class="code">)</span>", 
+where <span class="bnf">condition</span> is a <span class="ptype">boolean</span>-valued expression. This
+condition expresses a precondition or postcondition that should hold at that point in the program.
+When the computer encounters an assertion during the execution of the program,
+it evaluates the condition. If the condition is false, the program is
+terminated.  Otherwise, the program continues normally.  This allows the
+programmer's belief that the condition is true to be tested; if if it not
+true, that indicates that the part of the program that preceded the assertion
+contained a bug.  One nice thing about assertions in C and C++ is that they can be
+"turned off" at compile time. That is, if the program is compiled in one way,
+then the assertions are included in the compiled code. If the program is
+compiled in another way, the assertions are not included. During debugging, the
+first type of compilation is used. The release version of the program is
+compiled with assertions turned off. The release version will be more
+efficient, because the computer won't have to evaluate all the assertions.</p>
+   
+
+<p>Although early versions of Java did not have assertions, an assertion facility similar 
+to the one in C/C++ has been available in Java since version 1.4.  As with the
+C/C++ version, Java assertions can be turned on during debugging and turned off
+during normal execution.  In Java, however, assertions are turned on and off
+at run time rather than at compile time.  An assertion in the Java source code
+is always included in the compiled class file.  When the program is run in the normal
+way, these assertions are ignored; since the condition in the assertion is not
+evaluated in this case, there is little or no performance penalty for having the
+assertions in the program.  When the program is being debugged, it can be run
+with assertions enabled, as discussed below, and then the assertions can be
+a great help in locating and identifying bugs.</p>
+   
+
+
+<hr class="break">
+   
+
+<p>An <span class="newword">assertion statement</span> in Java takes one of the following two forms:</p>
+   
+
+<pre>assert <span class="bnf">condition</span> ;</pre>
+  
+
+<p>or</p>
+    
+
+<pre>assert <span class="bnf">condition</span> : <span class="bnf">error-message</span> ;</pre>
+
+
+<p>where <span class="bnf">condition</span> is a <span class="ptype">boolean</span>-valued expression
+and <span class="bnf">error-message</span> is a string or an expression of type <span class="classname">String</span>.
+The word "<span class="code">assert</span>" is a reserved word in Java, which cannot be used as
+an identifier.  An assertion statement can be used anyplace in Java where a statement is legal.</p>
+   
+
+<p>If a program is run with assertions disabled, an assertion statement is equivalent to
+an empty statement and has no effect.  When assertions are enabled and an assertion statement
+is encountered in the program, the <span class="bnf">condition</span> 
+in the assertion is evaluated.  If the value is <span class="code">true</span>, the program proceeds normally.
+If the value of the condition is <span class="code">false</span>, then an exception of type
+<span class="code">java.lang.AssertionError</span> is thrown, and the program will crash (unless the
+error is caught by a <span class="code">try</span> statement).  If the <span class="code">assert</span> statement
+includes an <span class="bnf">error-message</span>, then the error message string becomes the message
+in the <span class="classname">AssertionError</span>.</p>
+   
+
+<p>So, the statement "<span class="code">assert <span class="bnf">condition</span> : <span class="bnf">error-message</span>;"</span> is
+similar to</p>   
+   
+
+<pre>if ( <span class="bnf">condition</span> == false )
+    throw new AssertionError( <span class="bnf">error-message</span> );</pre>
+   
+
+<p>except that the <span class="code">if</span> statement is executed whenever the program is
+run, and the <span class="code">assert</span> statement is executed only when the program is
+run with assertions enabled.</p>
+   
+
+<p>The question is, when to use assertions instead of exceptions? The general
+rule is to use assertions to test conditions that should definitely be true,
+if the program is written correctly.  Assertions are useful for testing a program 
+to see whether or not it is correct and for finding the errors in an incorrect program.
+After testing and debugging, when the program is used in the normal way, the
+assertions in the program will be ignored.  However, if a problem turns up later,
+the assertions are still there in the program to be used to help locate the
+error.  If someone writes to you to say that your program doesn't work when
+he does such-and-such, you can run the program with assertions enabled, do
+such-and-such, and hope that the assertions in the program will help you
+locate the point in the program where it goes wrong.</p>
+   
+
+<p>Consider, for example, the <span class="code">root()</span> method from <a href="../c8/s3.html#robustness.3.3">Subsection&nbsp;8.3.3</a>
+that calculates a root of a quadratic equation.  If you believe that your program will
+always call this method with legal arguments, then it would make sense to write the
+method using assertions instead of exceptions:</p>
+   
+
+<pre>/**
+ * Returns the larger of the two roots of the quadratic equation
+ * A*x*x + B*x + C = 0, provided it has any roots.  
+ * Precondition: A != 0 and B*B - 4*A*C &gt;= 0.
+ */
+static public double root( double A, double B, double C )  {
+   assert A != 0 : "Leading coefficient of quadratic equation cannot be zero.";
+   double disc = B*B - 4*A*C;
+   assert disc &gt;= 0 : "Discriminant of quadratic equation cannot be negative.";
+   return  (-B + Math.sqrt(disc)) / (2*A);
+}</pre>
+
+
+<p>The assertions are not checked when the program is run in the normal way.  If you
+are correct in your belief that the method is never called with illegal arguments,
+then checking the conditions in the assertions would be unnecessary.  If your belief
+is not correct, the problem should turn up during testing or debugging, when the program is
+run with the assertions enabled.</p>
+   
+
+<p>If the <span class="code">root()</span> method is part of a software library that you
+expect other people to use, then the situation is less clear.  Sun's
+Java documentation advises that assertions should <b>not</b> be used for checking
+the contract of public methods:  If the caller of a method violates the contract
+by passing illegal parameters, then an exception should be thrown.  This will enforce
+the contract whether or not assertions are enabled.  (However, while it's true
+that Java programmers <i>expect</i> the contract of a method to be enforced with
+exceptions, there are reasonable arguments for using assertions instead, in some
+cases.)</p>
+   
+
+<p>On the other hand, it never hurts to use an assertion to check a postcondition
+of a method.  A postcondition is something that is supposed to be true after
+the method has executed, and it can be tested with an <span class="code">assert</span> statement at the
+end of the method.  If the postcodition is false, there is a bug in the method
+itself, and that is something that needs to be found during the development
+of the method.</p>
+   
+
+<hr class="break">
+
+
+<p>To have any effect, assertions must be <b>enabled</b> when the program is run.
+How to do this depends on what programming environment you are using.  (See
+<a href="../c2/s6.html">Section&nbsp;2.6</a> for a discussion of programming environments.)
+In the usual command line environment, assertions are enabled by adding the 
+option <span class="code">-enableassertions</span> to the <span class="code">java</span> command that 
+is used to run the program.  For example, if the class that contains the main 
+program is <span class="classname">RootFinder</span>, then the command</p>
+   
+
+<pre>java -enableassertions RootFinder</pre>
+
+
+<p>will run the program with assertions enabled.  
+The <span class="code">-enableassertions</span>
+option can be abbreviated to <span class="code">-ea</span>, so the command can alternatively
+be written as</p>
+   
+
+<pre>java -ea RootFinder</pre>
+   
+
+<p>In fact, it is possible to enable assertions in just part of a program.
+An option of the form
+"<span class="code">-ea:<span class="bnf">class-name</span></span>"
+enables only the assertions in the specified class.  Note that there are no
+spaces between the <span class="code">-ea</span>, the ":", and the name of the class.  To
+enable all the assertions in a package and in its sub-packages, you can use
+an option of the form "<span class="code">-ea:<span class="bnf">package-name</span>...</span>".
+To enable assertions in the "default package" (that is, classes that are not specified to
+belong to a package, like almost all the classes in this book), use
+"<span class="code">-ea:...</span>".  For
+example, to run a Java program named "MegaPaint" with assertions enabled for every class
+in the packages named "paintutils" and "drawing", you would use the command:</p>
+
+
+<pre>java  -ea:paintutils...  -ea:drawing...  MegaPaint</pre>
+   
+
+<p>If you are using the Eclipse integrated development environment, you can
+specify the <span class="code">-ea</span> option by creating a <span class="newword">run configuration</span>.
+Right-click the name of the main program class in the Package Explorer pane,
+and select "Run As" from the pop-up menu and then "Run..." from the
+submenu.  This will open a dialog box where you can manage run configurations.
+The name of the project and of the main class will be already be filled in.
+Click the "Arguments" tab, and enter <span class="code">-ea</span> in the box
+under "VM Arguments".  The contents of this box are added to the <span class="code">java</span>
+command that is used to run the program.  You can enter other options
+in this box, including more complicated <span class="code">enableassertions</span> options such 
+as <span class="code">-ea:paintutils...</span>.  When you click the "Run" button,
+the options will be applied.  Furthermore, they will be applied whenever
+you run the program, unless you change the run configuration or add a
+new configuration.  Note that it is possible to make two run configurations
+for the same class, one with assertions enabled and one with assertions
+disabled.</p>
+   
+
+
+
+</div>
+<hr>
+<div align="right">
+<small>
+        [  <a href="s3.html">Previous Section</a> |
+           <a href="s5.html">Next Section</a> |
+           <a href="index.html">Chapter Index</a> | 
+        <a href="../index.html">Main Index</a> ]
+    </small>
+</div>
+</body>
+</html>
