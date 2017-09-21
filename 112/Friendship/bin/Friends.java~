@@ -1,0 +1,67 @@
+//Krishna Yellayi (kmy27) and Abanoub David Awad (ada80) 
+import java.util.*;
+import java.io.*;
+import java.lang.*;
+
+public class Friends {
+
+	public static void main(String[] args) throws IOException {
+		int size = 0;
+		FriendGraph fg = new FriendGraph(
+				new HashMap<String, LinkedList<Person>>());
+		System.out.print("Input Graph file ==>");
+		Scanner sc = new Scanner(System.in);
+		String line = sc.nextLine();
+		if (line.length() != 0) {
+			Scanner scfile = new Scanner(new File(line));
+			size += Integer.parseInt(scfile.nextLine());
+			while (scfile.hasNext()) {
+				// System.out.println(scfile.next());
+				LinkedList<Person> temp = sortPeople(scfile.nextLine());
+				addToGraph(temp, fg);
+			}
+
+			scfile.close();
+		}
+
+		sc.close();
+		//sortPeople("sam|y|school") ;
+	}
+
+	private static void addToGraph(LinkedList<Person> person, FriendGraph graph) {
+		if(graph.friends.containsKey(person.element().name)){ //case of "jane" duplicate name 
+			LinkedList<Person> temp = graph.friends.get(person.element().name); 
+			if(cheese.contains(o)) // search for person's friend //instance variable of an object in the list
+			return ;
+		}
+		graph.friends.put(person.element().name, person);
+		
+	}
+
+	private static LinkedList<Person> sortPeople(String node) { // tom|rich
+		// should take rich, and add Rich to Tom's list of friends.
+		LinkedList<Person> tempList = new LinkedList<Person>() ;
+		Person tempPerson = new Person(null, null);
+		StringTokenizer st = new StringTokenizer(node, "|");
+		tempPerson.name = st.nextToken();
+		String var = st.nextToken();  // variable to determine friends
+		if (var.equals("n")){ //person is not student and has no friends 
+			tempPerson.school = null ;
+		}
+		// System.out.println(st.nextToken());
+		else if (var.equals("y")) { //person is student
+			//System.out.println(st.nextToken());
+			tempPerson.school = st.nextToken();
+			//System.out.println(tempPerson.name + " (name)" + tempPerson.school + " (school)");
+		}
+		else{ /// person has friend 
+			Person friend = new Person(var, null) ;
+			tempList.add(tempPerson) ;
+			tempList.add(friend) ;
+		}
+
+		return tempList;
+
+	}
+
+}

@@ -1,0 +1,14 @@
+import java.util.*;
+import java.io.*;
+import java.lang.*;
+
+public class FriendGraph {
+	HashMap<String, LinkedList<Person>> friends;
+
+	public FriendGraph(HashMap<String, LinkedList<Person>> partners) {
+		friends = partners;
+
+	}
+
+}
+
